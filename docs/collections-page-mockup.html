@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Collections Page — Topic-Grouped Design (Mockup)</title>
+<style>
+  :root {
+    --bg: #0c0e12;
+    --panel: #15181f;
+    --panel2: #1b1f28;
+    --border: #2a2f3a;
+    --border2: #333947;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --dim: #6b7484;
+    --accent: #4f8cff;
+    --amber: #fbbf24;
+    --green: #34d399;
+    --yellow: #facc15;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 28px 24px 80px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+
+  .topbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); margin-bottom: 14px; }
+  .topbar .logo { background: var(--accent); color: #fff; border-radius: 6px; padding: 2px 6px; font-size: 10px; font-weight: 700; letter-spacing: .5px; }
+  .topbar .name { font-weight: 700; }
+  .topbar .crumbs { color: var(--dim); font-size: 12px; margin-left: 6px; }
+  .topbar .spacer { flex: 1; }
+  .btn { border: 1px solid var(--border2); background: var(--panel2); color: var(--text); border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--dim); margin: 30px 0 10px; display: flex; align-items: center; gap: 10px; }
+  h2 .rule { flex: 1; height: 1px; background: var(--border); }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+  .stat { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); padding: 12px 16px; }
+  .stat .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--dim); }
+  .stat .value { font-size: 22px; font-weight: 600; margin-top: 2px; }
+  .stat .value small { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+  /* filter row */
+  .filters { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border2); background: var(--panel2); border-radius: 8px; padding: 6px 10px; color: var(--dim); }
+  .search input { background: none; border: none; outline: none; color: var(--text); font-size: 12.5px; flex: 1; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { display: flex; align-items: center; gap: 5px; border: 1px solid var(--border2); background: var(--panel); border-radius: 999px; padding: 4px 11px; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .chip.active { border-color: var(--accent); color: var(--text); background: rgba(79,140,255,.12); }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .chip .n { font-size: 10.5px; color: var(--dim); }
+
+  /* topic section */
+  .topic-head { display: flex; align-items: center; gap: 10px; margin: 22px 0 12px; }
+  .topic-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--panel2); border: 1px solid var(--border); font-size: 14px; }
+  .topic-name { font-size: 15px; font-weight: 600; }
+  .topic-count { background: var(--panel2); border: 1px solid var(--border); border-radius: 999px; padding: 0 8px; font-size: 11px; color: var(--muted); }
+  .topic-line { flex: 1; height: 1px; background: var(--border); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card { border: 1px solid var(--border); border-radius: 11px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; transition: border-color .15s; }
+  .card:hover { border-color: var(--border2); }
+  .card-head { padding: 12px 14px 6px; }
+  .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-title { font-size: 14.5px; font-weight: 600; }
+  .lang { font-size: 10px; font-weight: 700; border-radius: 5px; padding: 1px 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .lang.js { color: var(--yellow); background: rgba(250,204,21,.1); border: 1px solid rgba(250,204,21,.35); }
+  .lang.py { color: var(--green); background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.35); }
+  .card-date { color: var(--dim); font-size: 11px; margin-top: 2px; }
+  .card-body { padding: 4px 14px 10px; flex: 1; }
+  .codebox { background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; padding: 9px; font: 11px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); height: 76px; overflow: hidden; }
+  .input-preview { font-size: 10.5px; color: var(--dim); margin-top: 7px; font-family: ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); background: rgba(255,255,255,.02); padding: 8px 12px; }
+  .icon-btn { color: #f87171; background: none; border: none; font-size: 14px; cursor: pointer; padding: 4px; border-radius: 6px; }
+  .icon-btn:hover { background: rgba(248,113,113,.1); }
+  .run { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+  /* colors */
+  .c-blue { color: #60a5fa; } .bg-blue { background: #3b82f6; }
+  .c-orange { color: #fb923c; } .bg-orange { background: #f97316; }
+  .c-red { color: #f87171; } .bg-red { background: #ef4444; }
+  .c-lime { color: #a3e635; } .bg-lime { background: #84cc16; }
+  .c-violet { color: #a78bfa; } .bg-violet { background: #8b5cf6; }
+  .c-teal { color: #2dd4bf; } .bg-teal { background: #14b8a6; }
+  .c-fuchsia { color: #e879f9; } .bg-fuchsia { background: #d946ef; }
+  .c-sky { color: #38bdf8; } .bg-sky { background: #0ea5e9; }
+
+  .note { border: 1px dashed var(--border2); border-radius: 10px; background: var(--panel); padding: 12px 16px; color: var(--muted); font-size: 12px; margin-top: 16px; }
+  .note b { color: var(--text); }
+  .hover-tip { display: inline-block; border: 1px solid var(--border2); border-radius: 5px; padding: 0 6px; font-size: 10.5px; color: var(--muted); margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Collections Page — Topic-Grouped Design</h1>
+  <p class="sub">Design mockup for review. The page groups saved algorithms by topic (sections + filter chips), shows per-topic counts, a stats strip, and language badges — no more flat dump of everything.</p>
+
+  <!-- ===================== PAGE ===================== -->
+  <div class="topbar">
+    <span class="logo">01 10</span>
+    <span class="name">DSA Lab</span>
+    <span class="crumbs">/ My Collections</span>
+    <span class="spacer"></span>
+    <span class="btn">Home</span>
+    <span class="btn">Guide</span>
+    <span class="btn primary">Open Visualizer</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Saved algorithms</div><div class="value">12</div></div>
+    <div class="stat"><div class="label">Topics</div><div class="value">4</div></div>
+    <div class="stat"><div class="label">Last saved</div><div class="value" style="font-size:15px;padding-top:4px">🕒 2h ago</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="search">🔍 <input placeholder="Search your saved algorithms…" value="" /></div>
+    <div class="chips">
+      <span class="chip active">All · 12</span>
+      <span class="chip"><span class="dot bg-blue"></span>Arrays <span class="n">4</span></span>
+      <span class="chip"><span class="dot bg-orange"></span>Hashing <span class="n">3</span></span>
+      <span class="chip"><span class="dot bg-violet"></span>Two Pointers <span class="n">2</span></span>
+      <span class="chip"><span class="dot bg-lime"></span>Trees <span class="n">3</span></span>
+    </div>
+    <span class="spacer" style="flex:1"></span>
+    <span class="btn">⇅ Recently updated</span>
+    <span class="btn primary">+ New Visualization</span>
+  </div>
+
+  <!-- Arrays section -->
+  <div class="topic-head">
+    <span class="topic-icon c-blue">▤</span>
+    <span class="topic-name">Arrays</span>
+    <span class="topic-count">4</span>
+    <span class="topic-line"></span>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Bubble sort</div><span class="lang js">JavaScript</span></div>
+        <div class="card-date">2h ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">const arr = [...input.array];
+
+for (let i = 0; i &lt; arr.length - 1; i++) {
+  for (let j = 0; j &lt; arr.length - i - 1; j++) {
+    if (arr[j] &gt; arr[j + 1]) {</div>
+        <div class="input-preview">Input: {"array":[8,3,5,1,9,2]}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Bubble sort (Python)</div><span class="lang py">Python</span></div>
+        <div class="card-date">1d ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">arr = list(input["array"])
+
+for i in range(len(arr) - 1):
+    for j in range(len(arr) - i - 1):
+        if arr[j] &gt; arr[j + 1]:
+            arr[j], arr[j + 1] = arr[j + 1], arr[j]</div>
+        <div class="input-preview">Input: {"array":[8,3,5,1,9,2]}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Sliding window max</div><span class="lang js">JavaScript</span></div>
+        <div class="card-date">3d ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">const maxes = [];
+const deque = [];
+
+for (let i = 0; i &lt; arr.length; i++) {
+  while (deque.length &amp;&amp; arr[deque[deque.length-1]] &lt;= arr[i])</div>
+        <div class="input-preview">Input: {"array":[1,3,-1,-3,5]}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+  </div>
+
+  <!-- Hashing section -->
+  <div class="topic-head">
+    <span class="topic-icon c-orange">#</span>
+    <span class="topic-name">Hashing</span>
+    <span class="topic-count">3</span>
+    <span class="topic-line"></span>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Two sum</div><span class="lang py">Python</span></div>
+        <div class="card-date">5h ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">seen = {}
+for i, num in enumerate(arr):
+    complement = target - num
+    if complement in seen:
+        print([seen[complement], i])
+    seen[num] = i</div>
+        <div class="input-preview">Input: {"array":[2,7,11,15],"target":9}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Group anagrams</div><span class="lang js">JavaScript</span></div>
+        <div class="card-date">1w ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">const map = {};
+for (const word of words) {
+  const key = word.split('').sort().join('');
+  (map[key] ??= []).push(word);</div>
+        <div class="input-preview">Input: {"words":["eat","tea","tan"]}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+  </div>
+
+  <!-- Trees section -->
+  <div class="topic-head">
+    <span class="topic-icon c-lime">⛰</span>
+    <span class="topic-name">Trees</span>
+    <span class="topic-count">3</span>
+    <span class="topic-line"></span>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row"><div class="card-title">Invert binary tree</div><span class="lang js">JavaScript</span></div>
+        <div class="card-date">2w ago</div>
+      </div>
+      <div class="card-body">
+        <div class="codebox">function invert(root) {
+  if (!root) return null;
+  const left = invert(root.left);
+  root.left = invert(root.right);
+  root.right = left;</div>
+        <div class="input-preview">Input: {"root":[4,2,7,1,3]}</div>
+      </div>
+      <div class="card-foot"><button class="icon-btn">🗑</button><button class="run">▶ Run Visualizer</button></div>
+    </div>
+  </div>
+
+  <!-- Tip footer -->
+  <div class="note">✨ <b>Tip:</b> hit <b>Save code</b> in the visualizer to add a new algorithm — it lands here under the topic you choose.</div>
+
+  <!-- ===================== ANNOTATIONS ===================== -->
+  <h2>What changed vs the current page <span class="rule"></span></h2>
+  <div class="note">
+    <b>Topic grouping</b> — algorithms are now rendered as colored sections per topic (icon + name + count), and the
+    chip row above filters to one topic (or "All"). No more flat dump.<br /><br />
+    <b>Stats strip</b> — total saved, topic count, and "last saved" at a glance.<br /><br />
+    <b>Language badges</b> — each card shows JS/Python (stored at save time — the DB column already exists but was
+    never written; the save flow now persists it, with detection fallback for old rows).<br /><br />
+    <b>Relative dates</b> — "2h ago" instead of raw dates.<br /><br />
+    <b>Per-topic accent</b> — each topic gets a stable icon + color (Arrays blue, Hashing orange, Trees lime…) with a
+    deterministic fallback color for custom topics.<br /><br />
+    <b>Sort</b> — Recently updated / Title A–Z.<br /><br />
+    <b>Search + topic filter</b> still work together; empty and no-match states kept.
+  </div>
+</div>
+</body>
+</html>

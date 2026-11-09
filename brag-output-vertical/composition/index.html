@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>DSA Lab — Brag (Vertical)</title>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="assets/audio-data.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1920px; overflow: hidden;
+        background: #0f0f0f;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        color: #f5f5f5;
+      }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .clip { position: absolute; inset: 0; display: grid; place-items: center; }
+      .mono { font-family: ui-monospace, Menlo, monospace; }
+
+      /* ---------- Scene 1: hook ---------- */
+      #s1-stack { display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 0 60px; text-align: center; }
+      #s1-line1 { font-size: 92px; font-weight: 650; letter-spacing: -0.02em; opacity: 0; }
+      #s1-line2 { font-size: 92px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.15; opacity: 0; }
+      #s1-seen { color: #42dcfa; }
+
+      /* ---------- Scene 2: reveal card ---------- */
+      #s2-card {
+        width: 880px; padding: 64px 64px; border-radius: 28px;
+        background: #141414; border: 1px solid #383838;
+        box-shadow: 0 44px 96px rgba(0,0,0,0.55);
+        display: flex; flex-direction: column; align-items: flex-start; gap: 26px; opacity: 0;
+      }
+      #s2-eyebrow { color: #42dcfa; font-size: 22px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0; }
+      #s2-word { font-size: 104px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; opacity: 0; }
+      #s2-tag { font-size: 36px; color: #a3a3a3; opacity: 0; }
+      #s2-sub { font-size: 28px; color: #a1a1aa; opacity: 0; }
+      #s2-sub .arrow { color: #42dcfa; }
+
+      /* ---------- Scene 3: the trace, portrait ---------- */
+      #s3-window {
+        width: 980px; height: 1240px; border-radius: 24px;
+        background: #121214; border: 1px solid #383838;
+        box-shadow: 0 44px 96px rgba(0,0,0,0.55);
+        padding: 40px 44px 36px; display: flex; flex-direction: column; position: relative; overflow: hidden; opacity: 0;
+      }
+      #s3-head { display: flex; align-items: center; gap: 14px; }
+      #s3-title { font-size: 34px; font-weight: 600; }
+      #s3-run {
+        margin-left: auto; padding: 12px 26px; border-radius: 12px;
+        border: 1px solid #42dcfa; color: #42dcfa; background: rgba(66,220,250,0.07);
+        font-size: 24px; font-weight: 600;
+      }
+      #s3-code-strip { margin-top: 26px; border-radius: 14px; background: #0c0c0e; border: 1px solid #27272a; padding: 20px 24px; opacity: 0; }
+      .s3-code-line { font-size: 21px; line-height: 1.6; color: #e4e4e7; white-space: pre; opacity: 0; }
+      .s3-code-line .kw { color: #42dcfa; }
+      #s3-shimmer {
+        position: absolute; left: 44px; right: 44px; top: 232px; height: 300px; border-radius: 14px;
+        overflow: hidden; opacity: 0; background: #131316; border: 1px solid #232327;
+      }
+      #s3-shimmer-band {
+        position: absolute; top: 0; bottom: 0; width: 300px;
+        background: linear-gradient(90deg, rgba(163,163,163,0) 0%, rgba(163,163,163,0.18) 50%, rgba(163,163,163,0) 100%);
+      }
+      #s3-chart { position: relative; margin-top: 46px; height: 620px; }
+      #s3-bracket { position: absolute; left: 66px; top: 0; width: 300px; height: 74px; }
+      .s3-note { position: absolute; left: 0; width: 300px; text-align: center; top: 46px; font-size: 25px; color: #42dcfa; opacity: 0; }
+      .s3-note.on { opacity: 1; }
+      #s3-bars { position: absolute; left: 0; top: 74px; display: flex; gap: 18px; }
+      .s3-cell { width: 132px; height: 420px; display: flex; align-items: flex-end; }
+      .s3-bar { width: 132px; border-radius: 10px 10px 0 0; background: #a3a3a3; color: #1c1c1f;
+        font-size: 30px; font-weight: 650; text-align: center; padding-top: 10px; }
+      #s3-indices { position: absolute; left: 0; top: 502px; display: flex; gap: 18px; }
+      #s3-pointers { position: absolute; left: 0; top: 536px; height: 70px; }
+      #s3-pj { position: absolute; left: 0; top: 0; width: 132px; text-align: center; font-size: 25px; color: #fa9e42; }
+      #s3-pi { position: absolute; left: 0; top: 34px; width: 132px; text-align: center; font-size: 25px; color: #42dcfa; }
+      .s3-idx { width: 132px; text-align: center; font-size: 21px; color: #a1a1aa; }
+      #s3-pj { position: absolute; left: 0; top: 0; width: 132px; text-align: center; font-size: 25px; color: #fa9e42; }
+      #s3-pi { position: absolute; left: 0; top: 34px; width: 132px; text-align: center; font-size: 25px; color: #42dcfa; }
+      #s3-swaprow {
+        margin-top: 26px; display: flex; align-items: center; gap: 18px;
+        border-radius: 14px; background: #0c0c0e; border: 1px solid #27272a; padding: 18px 26px;
+      }
+      #s3-swaprow .lbl { font-size: 26px; color: #a1a1aa; }
+      #s3-swapval { position: relative; display: inline-block; min-width: 40px; height: 40px; }
+      #s3-swapval span { position: absolute; left: 0; top: 0; font-size: 30px; font-weight: 600; color: #42dcfa; opacity: 0; }
+      #s3-swapval .on { opacity: 1; }
+      #s3-step { margin-left: auto; font-size: 24px; color: #a1a1aa; position: relative; width: 190px; height: 32px; }
+      #s3-step span { position: absolute; right: 0; top: 0; opacity: 0; }
+      #s3-step .on { opacity: 1; }
+      #s3-play { margin-top: 24px; height: 12px; border-radius: 6px; background: #232327; overflow: hidden; }
+      #s3-play-fill { width: 100%; height: 100%; border-radius: 6px; background: #42dcfa; transform: scaleX(0.2); transform-origin: left center; }
+      #s3-cursor { position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%;
+        background: #f5f5f5; box-shadow: 0 0 0 7px rgba(66,220,250,0.35), 0 6px 18px rgba(0,0,0,0.5); opacity: 0; }
+
+      /* ---------- Scene 4: structures + punchline + logo ---------- */
+      #s4-wrap { display: flex; flex-direction: column; align-items: center; gap: 56px; }
+      #s4-caption { font-size: 52px; font-weight: 650; letter-spacing: -0.02em; opacity: 0; }
+      #s4-grid { display: flex; flex-direction: column; gap: 20px; }
+      .s4-row { display: flex; gap: 18px; justify-content: center; }
+      .s4-chip {
+        width: 296px; height: 226px; border-radius: 18px; background: #141414; border: 1px solid #383838;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; opacity: 0;
+      }
+      .s4-chip-label { font-size: 23px; color: #a3a3a3; }
+      .s4-bars { display: flex; align-items: flex-end; gap: 10px; height: 74px; }
+      .s4-bars div { width: 27px; border-radius: 4px 4px 0 0; background: #a3a3a3; }
+      .s4-bars .hot { background: #ec8a6d; }
+      .s4-str { font-size: 30px; color: #e4e4e7; }
+      .s4-str .win { color: #42dcfa; border: 2px solid #42dcfa; border-radius: 7px; padding: 1px 4px; }
+      .s4-map { font-size: 25px; color: #a1a1aa; }
+      .s4-map .k { color: #e4e4e7; } .s4-map .a { color: #42dcfa; } .s4-map .v { color: #fa9e42; }
+      .s4-stack-frame { width: 190px; height: 36px; border-radius: 9px; border: 1px solid #4b5563; background: #1c1c22;
+        font-size: 20px; color: #a1a1aa; display: flex; align-items: center; justify-content: center; }
+      .s4-stack-frame.top { border-color: #42dcfa; color: #42dcfa; }
+      #s4-punch { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      #s4-line { font-size: 84px; font-weight: 700; letter-spacing: -0.02em; text-align: center; opacity: 0; }
+      #s4-watch { color: #42dcfa; }
+      #s4-logo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+      #s4-eyebrow { color: #42dcfa; font-size: 23px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; opacity: 0; }
+      #s4-word { font-size: 124px; font-weight: 700; letter-spacing: -0.03em; opacity: 0; }
+      #s4-cta { padding: 20px 44px; border-radius: 16px; border: 1px solid #383838; background: #1a1a1a; font-size: 30px; font-weight: 600; opacity: 0; }
+      #s4-cta .arrow { color: #42dcfa; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="21"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Scene 1 — Hook (0.00–3.02) -->
+      <section id="s1" class="clip" data-start="0" data-duration="3.02" data-track-index="1">
+        <div id="s1-stack">
+          <h1 id="s1-line1">You read code.</h1>
+          <h1 id="s1-line2">You've never <span id="s1-seen">SEEN</span> it.</h1>
+        </div>
+      </section>
+
+      <!-- Scene 2 — Reveal card (3.02–6.03) -->
+      <section id="s2" class="clip" data-start="3.02" data-duration="3.01" data-track-index="2">
+        <div id="s2-card">
+          <div id="s2-eyebrow">Practice algorithms visually</div>
+          <div id="s2-word">DSA Lab</div>
+          <div id="s2-tag">Visualize algorithms step by step</div>
+          <div id="s2-sub" class="mono">paste <span class="arrow">→</span> run <span class="arrow">→</span> step through</div>
+        </div>
+      </section>
+
+      <!-- Scene 3 — The trace, portrait (6.03–13.01) -->
+      <section id="s3" class="clip" data-start="6.03" data-duration="6.98" data-track-index="3">
+        <div id="s3-window">
+          <div id="s3-head">
+            <span id="s3-title">Bubble sort</span>
+            <span id="s3-run" class="mono">▶ Run</span>
+          </div>
+          <div id="s3-code-strip" class="mono">
+            <div class="s3-code-line"><span class="kw">for</span> (<span class="kw">let</span> j = 0; j &lt; arr.length - i - 1; j++) {</div>
+            <div class="s3-code-line">  <span class="kw">if</span> (arr[j] &gt; arr[j + 1]) swap;</div>
+          </div>
+          <div id="s3-chart">
+            <div id="s3-bracket">
+              <svg width="300" height="74" viewBox="0 0 300 74" fill="none" aria-hidden="true">
+                <path d="M 30 62 Q 150 -6 270 62" stroke="#42dcfa" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 30 62 l 9 -12 M 30 62 l 14 3" stroke="#42dcfa" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M 270 62 l -9 -12 M 270 62 l -14 3" stroke="#42dcfa" stroke-width="3.5" stroke-linecap="round"/>
+              </svg>
+              <div id="s3-note1" class="s3-note mono on">8 &gt; 3 → swap</div>
+              <div id="s3-note2" class="s3-note mono">8 &gt; 5 → swap</div>
+            </div>
+            <div id="s3-bars">
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar0" style="height: 368px">8</div></div>
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar1" style="height: 138px">3</div></div>
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar2" style="height: 230px">5</div></div>
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar3" style="height: 46px">1</div></div>
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar4" style="height: 414px">9</div></div>
+              <div class="s3-cell"><div class="s3-bar" id="s3-bar5" style="height: 92px">2</div></div>
+            </div>
+            <div id="s3-pointers">
+              <div id="s3-pj" class="mono">▼ j</div>
+              <div id="s3-pi" class="mono">▼ i</div>
+            </div>
+            <div id="s3-indices">
+              <div class="s3-idx">0</div><div class="s3-idx">1</div><div class="s3-idx">2</div>
+              <div class="s3-idx">3</div><div class="s3-idx">4</div><div class="s3-idx">5</div>
+            </div>
+          </div>
+          <div id="s3-swaprow">
+            <span class="lbl mono">swaps:</span>
+            <span id="s3-swapval" class="mono"><span class="on" id="s3-sw1">0</span><span id="s3-sw2">1</span><span id="s3-sw3">2</span></span>
+            <span id="s3-step" class="mono"><span class="on" id="s3-step1">Step 9 / 27</span><span id="s3-step2">Step 12 / 27</span></span>
+          </div>
+          <div id="s3-play"><div id="s3-play-fill"></div></div>
+          <div id="s3-shimmer" data-layout-allow-occlusion><div id="s3-shimmer-band" data-layout-allow-overflow></div></div>
+          <div id="s3-cursor"></div>
+        </div>
+      </section>
+
+      <!-- Scene 4 — Structures + punchline + logo (13.01–21.00) -->
+      <section id="s4" class="clip" data-start="13.01" data-duration="7.99" data-track-index="4">
+        <div id="s4-wrap">
+          <div id="s4-caption">One trace. Every structure.</div>
+          <div id="s4-grid">
+            <div class="s4-row">
+              <div class="s4-chip" id="s4-chip1">
+                <div class="s4-bars">
+                  <div style="height: 32px"></div><div class="hot" style="height: 60px"></div>
+                  <div style="height: 44px"></div><div class="hot" style="height: 72px"></div>
+                </div>
+                <div class="s4-chip-label">Arrays</div>
+              </div>
+              <div class="s4-chip" id="s4-chip2">
+                <div class="s4-str mono">ab<span class="win">cbc</span>a</div>
+                <div class="s4-chip-label">Windows</div>
+              </div>
+            </div>
+            <div class="s4-row">
+              <div class="s4-chip" id="s4-chip3">
+                <div class="s4-map mono"><div><span class="k">"a"</span> <span class="a">→</span> <span class="v">2</span></div><div><span class="k">"b"</span> <span class="a">→</span> <span class="v">1</span></div></div>
+                <div class="s4-chip-label">Maps</div>
+              </div>
+              <div class="s4-chip" id="s4-chip4">
+                <svg width="140" height="92" viewBox="0 0 150 96" fill="none" aria-hidden="true">
+                  <line x1="30" y1="24" x2="118" y2="24" stroke="#4b5563" stroke-width="2.5"/>
+                  <line x1="30" y1="24" x2="74" y2="78" stroke="#4b5563" stroke-width="2.5"/>
+                  <line x1="118" y1="24" x2="74" y2="78" stroke="#42dcfa" stroke-width="2.5"/>
+                  <circle cx="30" cy="24" r="11" fill="#a3a3a3"/>
+                  <circle cx="118" cy="24" r="11" fill="#a3a3a3"/>
+                  <circle cx="74" cy="78" r="11" fill="#42dcfa"/>
+                </svg>
+                <div class="s4-chip-label">Graphs</div>
+              </div>
+              <div class="s4-chip" id="s4-chip5">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="s4-stack-frame top">dfs(2, 3)</div>
+                  <div class="s4-stack-frame">dfs(1, 3)</div>
+                </div>
+                <div class="s4-chip-label">Stacks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="s4-punch"><div id="s4-line">Now <span id="s4-watch">watch</span> it think.</div></div>
+        <div id="s4-logo">
+          <div id="s4-eyebrow">Practice algorithms visually</div>
+          <div id="s4-word">DSA Lab</div>
+          <div id="s4-cta">Open visualizer <span class="arrow">→</span></div>
+        </div>
+      </section>
+
+      <!-- Music -->
+      <audio
+        id="music"
+        src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"
+        data-start="0"
+        data-duration="21"
+        data-track-index="20"
+        data-volume="0.55"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":1.2,"v":0.55},{"t":19.6,"v":0.55},{"t":21,"v":0}]}]}'
+      ></audio>
+
+      <!-- SFX -->
+      <audio id="run-tap" src="assets/sfx/click_003.ogg" data-start="7.30" data-duration="0.6" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="build" src="assets/sfx/rollover2.ogg" data-start="9.52" data-duration="0.6" data-track-index="21" data-volume="0.32"></audio>
+      <audio id="swap1" src="assets/sfx/drop_001.ogg" data-start="10.02" data-duration="0.6" data-track-index="21" data-volume="0.58"></audio>
+      <audio id="swap2" src="assets/sfx/drop_001.ogg" data-start="11.02" data-duration="0.6" data-track-index="21" data-volume="0.58"></audio>
+      <audio id="chip1" src="assets/sfx/rollover2.ogg" data-start="13.51" data-duration="0.6" data-track-index="21" data-volume="0.32"></audio>
+      <audio id="chip2" src="assets/sfx/bong_001.ogg" data-start="14.02" data-duration="0.6" data-track-index="21" data-volume="0.38"></audio>
+      <audio id="chip3" src="assets/sfx/rollover2.ogg" data-start="14.52" data-duration="0.6" data-track-index="21" data-volume="0.32"></audio>
+      <audio id="chip4" src="assets/sfx/bong_001.ogg" data-start="15.02" data-duration="0.6" data-track-index="21" data-volume="0.38"></audio>
+      <audio id="chip5" src="assets/sfx/switch_007.ogg" data-start="15.52" data-duration="0.6" data-track-index="21" data-volume="0.38"></audio>
+      <audio id="logo-hit" src="assets/sfx/impactSoft_medium_001.ogg" data-start="20.02" data-duration="0.6" data-track-index="21" data-volume="0.62"></audio>
+      <audio id="cta-tap" src="assets/sfx/click1.ogg" data-start="20.45" data-duration="0.6" data-track-index="21" data-volume="0.3"></audio>
+    </div>
+
+    <script>
+      var tl = gsap.timeline({ paused: true });
+
+      /* ============ Scene 1 — hook (0–3.02) ============ */
+      tl.fromTo("#s1-line1", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.15);
+      tl.fromTo("#s1-line2", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 1.55);
+
+      /* ============ Scene 2 — reveal card (3.02–6.03) ============ */
+      // beat-locked: 3.02s
+      tl.fromTo("#s2-card", { scale: 0.93, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.48, ease: "power3.out" }, 3.02);
+      tl.fromTo("#s2-eyebrow", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 3.32);
+      tl.fromTo("#s2-word", { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.36, ease: "power3.out" }, 3.44);
+      tl.fromTo("#s2-tag", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }, 3.58);
+      tl.fromTo("#s2-sub", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }, 3.72);
+
+      /* ============ Scene 3 — the trace, portrait (6.03–13.01) ============ */
+      tl.fromTo("#s3-window", { scale: 0.96, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "power3.out" }, 6.03);
+      tl.fromTo("#s3-code-strip", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, 6.53);
+      tl.fromTo("#s3-code-strip .s3-code-line:nth-child(1)", { opacity: 0 }, { opacity: 1, duration: 0.14 }, 6.70);
+      tl.fromTo("#s3-code-strip .s3-code-line:nth-child(2)", { opacity: 0 }, { opacity: 1, duration: 0.14 }, 6.95);
+      // cursor taps Run at 7.30
+      tl.fromTo("#s3-cursor", { x: 260, y: 760, opacity: 0 }, { x: 840, y: 34, opacity: 1, duration: 0.36, ease: "power2.inOut" }, 6.94);
+      tl.to("#s3-run", { scale: 0.92, duration: 0.09, ease: "power2.in" }, 7.30);
+      tl.to("#s3-run", { scale: 1, duration: 0.15, ease: "power2.out" }, 7.39);
+      tl.to("#s3-cursor", { opacity: 0, duration: 0.25 }, 7.60);
+      // shimmer build (2 finite passes)
+      tl.fromTo("#s3-shimmer", { opacity: 0 }, { opacity: 1, duration: 0.15 }, 7.30);
+      tl.fromTo("#s3-shimmer-band", { x: -320 }, { x: 720, duration: 0.75, ease: "power1.inOut", repeat: 1 }, 7.32);
+      tl.to("#s3-shimmer", { opacity: 0, duration: 0.3 }, 9.30);
+      // beat-grid: bars build 9.52 → 10.02
+      tl.fromTo("#s3-bars .s3-bar", { scaleY: 0 }, { scaleY: 1, duration: 0.34, ease: "back.out(1.6)", transformOrigin: "bottom", stagger: 0.08 }, 9.52);
+      tl.fromTo("#s3-swaprow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" }, 9.60);
+      tl.fromTo("#s3-play-fill", { scaleX: 0.2 }, { scaleX: 0.52, duration: 6.7, ease: "none" }, 6.31);
+      // beat-locked: 10.02s — swap 1
+      tl.to("#s3-bar0", { x: 150, duration: 0.5, ease: "back.out(1.3)" }, 10.02);
+      tl.to("#s3-bar1", { x: -150, duration: 0.5, ease: "back.out(1.3)" }, 10.02);
+      tl.to("#s3-bar0", { backgroundColor: "#f97316", duration: 0.1 }, 10.02);
+      tl.to("#s3-bar1", { backgroundColor: "#f97316", duration: 0.1 }, 10.02);
+      tl.set("#s3-sw1", { opacity: 0 }, 10.02);
+      tl.set("#s3-sw2", { opacity: 1 }, 10.02);
+      tl.to("#s3-pj", { x: 150, duration: 0.5, ease: "back.out(1.3)" }, 10.02);
+      tl.to("#s3-bar0", { backgroundColor: "#ec8a6d", duration: 0.25 }, 10.52);
+      tl.to("#s3-bar1", { backgroundColor: "#ec8a6d", duration: 0.25 }, 10.52);
+      tl.to("#s3-bar2", { backgroundColor: "#ec8a6d", duration: 0.25 }, 10.55);
+      tl.to("#s3-bracket", { x: 150, duration: 0.32, ease: "power2.inOut" }, 10.58);
+      tl.set("#s3-note1", { opacity: 0 }, 10.58);
+      tl.set("#s3-note2", { opacity: 1 }, 10.58);
+      tl.set("#s3-step1", { opacity: 0 }, 10.58);
+      tl.set("#s3-step2", { opacity: 1 }, 10.58);
+      // beat-locked: 11.02s — swap 2
+      tl.to("#s3-bar0", { x: 300, duration: 0.5, ease: "back.out(1.3)" }, 11.02);
+      tl.to("#s3-bar2", { x: -150, duration: 0.5, ease: "back.out(1.3)" }, 11.02);
+      tl.to("#s3-bar0", { backgroundColor: "#f97316", duration: 0.1 }, 11.02);
+      tl.to("#s3-bar2", { backgroundColor: "#f97316", duration: 0.1 }, 11.02);
+      tl.set("#s3-sw2", { opacity: 0 }, 11.02);
+      tl.set("#s3-sw3", { opacity: 1 }, 11.02);
+      tl.to("#s3-pj", { x: 300, duration: 0.5, ease: "back.out(1.3)" }, 11.02);
+      tl.to("#s3-bar0", { backgroundColor: "#ec8a6d", duration: 0.25 }, 11.52);
+      tl.to("#s3-bar2", { backgroundColor: "#ec8a6d", duration: 0.25 }, 11.52);
+      tl.to("#s3-bar1", { backgroundColor: "#a3a3a3", duration: 0.25 }, 11.55);
+
+      /* ============ Scene 4 — structures + punchline + logo (13.01–21.00) ============ */
+      tl.fromTo("#s4-caption", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.36, ease: "power3.out" }, 13.15);
+      // beat-grid: chips 13.51–15.52
+      tl.fromTo("#s4-chip1", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.36, ease: "back.out(1.5)" }, 13.51);
+      tl.fromTo("#s4-chip2", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.36, ease: "back.out(1.5)" }, 14.02);
+      tl.fromTo("#s4-chip3", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.36, ease: "back.out(1.5)" }, 14.52);
+      tl.fromTo("#s4-chip4", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.36, ease: "back.out(1.5)" }, 15.02);
+      tl.fromTo("#s4-chip5", { y: 30, scale: 0.9, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.36, ease: "back.out(1.5)" }, 15.52);
+      tl.to("#s4-wrap", { opacity: 0, duration: 0.4, ease: "power2.in" }, 15.85);
+      // beat-locked: 16.02s — punchline
+      tl.fromTo("#s4-line", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.46, ease: "power3.out" }, 16.02);
+      tl.to("#s4-punch", { opacity: 0, y: -20, duration: 0.4, ease: "power2.in" }, 19.35);
+      // beat-locked: 20.02s — wordmark + CTA tap pulse
+      tl.fromTo("#s4-eyebrow", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }, 19.85);
+      tl.fromTo("#s4-word", { scale: 0.94, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "power3.out" }, 20.02);
+      tl.fromTo("#s4-cta", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" }, 20.32);
+      tl.to("#s4-cta", { scale: 0.94, duration: 0.09, ease: "power2.in" }, 20.45);
+      tl.to("#s4-cta", { scale: 1, duration: 0.15, ease: "power2.out" }, 20.54);
+      // audio-reactive: wordmark glow breathes with bass (19.8–21.1s)
+      (function () {
+        var data = window.AUDIO_GLOW;
+        if (!data || !data.frames) return;
+        for (var f = 0; f < data.frames.length; f++) {
+          var t = 19.8 + f / data.fps;
+          if (t < 20.02) continue;
+          var bass = data.frames[f][0] || 0;
+          var glow = "0 0 " + (10 + 50 * bass).toFixed(1) + "px rgba(66,220,250," + (0.22 + 0.42 * bass).toFixed(3) + ")";
+          tl.set("#s4-word", { textShadow: glow }, Math.min(t, 20.98));
+        }
+      })();
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

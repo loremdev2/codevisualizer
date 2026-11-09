@@ -1,0 +1,1896 @@
+{
+  "7": {
+    "code": "class Solution {\n  reverse(x) {\n    let result = 0;\n    let value = Math.abs(x);\n    while (value > 0) {\n      result = result * 10 + (value % 10);\n      value = Math.floor(value / 10);\n    }\n    const signed = x < 0 ? -result : result;\n    if (signed > 2 ** 31 - 1 || signed < -(2 ** 31)) return 0;\n    return signed;\n  }\n}",
+    "input": {
+      "x": 123
+    },
+    "expected": 321
+  },
+  "40": {
+    "code": "class Solution {\n  combinationSum2(candidates, target) {\n    candidates.sort((a, b) => a - b);\n    const result = [];\n    const backtrack = (start, current, sum) => {\n      if (sum === target) {\n        result.push([...current]);\n        return;\n      }\n      if (sum > target) return;\n      for (let i = start; i < candidates.length; i++) {\n        if (i > start && candidates[i] === candidates[i - 1]) continue;\n        current.push(candidates[i]);\n        backtrack(i + 1, current, sum + candidates[i]);\n        current.pop();\n      }\n    };\n    backtrack(0, [], 0);\n    return result;\n  }\n}",
+    "input": {
+      "candidates": [
+        10,
+        1,
+        2,
+        7,
+        6,
+        1,
+        5
+      ],
+      "target": 8
+    },
+    "expected": [
+      [
+        1,
+        1,
+        6
+      ],
+      [
+        1,
+        2,
+        5
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        6
+      ]
+    ]
+  },
+  "43": {
+    "code": "class Solution {\n  multiply(num1, num2) {\n    if (num1 === \"0\" || num2 === \"0\") return \"0\";\n    const result = new Array(num1.length + num2.length).fill(0);\n    for (let i = num1.length - 1; i >= 0; i--) {\n      for (let j = num2.length - 1; j >= 0; j--) {\n        const product = Number(num1[i]) * Number(num2[j]);\n        const pos = i + j + 1;\n        const sum = result[pos] + product;\n        result[pos] = sum % 10;\n        result[pos - 1] += Math.floor(sum / 10);\n      }\n    }\n    while (result[0] === 0) result.shift();\n    return result.join(\"\");\n  }\n}",
+    "input": {
+      "num1": "123",
+      "num2": "456"
+    },
+    "expected": "56088"
+  },
+  "47": {
+    "code": "class Solution {\n  permuteUnique(nums) {\n    nums.sort((a, b) => a - b);\n    const result = [];\n    const used = new Array(nums.length).fill(false);\n    const backtrack = (current) => {\n      if (current.length === nums.length) { result.push([...current]); return; }\n      for (let i = 0; i < nums.length; i++) {\n        if (used[i]) continue;\n        if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) continue;\n        used[i] = true;\n        current.push(nums[i]);\n        backtrack(current);\n        current.pop();\n        used[i] = false;\n      }\n    };\n    backtrack([]);\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        1,
+        2
+      ]
+    },
+    "expected": [
+      [
+        1,
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        1
+      ],
+      [
+        2,
+        1,
+        1
+      ]
+    ]
+  },
+  "51": {
+    "code": "class Solution {\n  solveNQueens(n) {\n    const result = [];\n    const board = new Array(n).fill(0).map(() => new Array(n).fill(\".\"));\n    const cols = new Set();\n    const diag1 = new Set();\n    const diag2 = new Set();\n    const place = (row) => {\n      if (row === n) {\n        result.push(board.map((r) => r.join(\"\")));\n        return;\n      }\n      for (let col = 0; col < n; col++) {\n        const d1 = row - col;\n        const d2 = row + col;\n        if (cols.has(col) || diag1.has(d1) || diag2.has(d2)) continue;\n        board[row][col] = \"Q\";\n        cols.add(col);\n        diag1.add(d1);\n        diag2.add(d2);\n        place(row + 1);\n        board[row][col] = \".\";\n        cols.delete(col);\n        diag1.delete(d1);\n        diag2.delete(d2);\n      }\n    };\n    place(0);\n    return result;\n  }\n}",
+    "input": {
+      "n": 4
+    },
+    "expected": [
+      [
+        ".Q..",
+        "...Q",
+        "Q...",
+        "..Q."
+      ],
+      [
+        "..Q.",
+        "Q...",
+        "...Q",
+        ".Q.."
+      ]
+    ]
+  },
+  "62": {
+    "code": "class Solution {\n  uniquePaths(m, n) {\n    const dp = new Array(n).fill(1);\n    for (let row = 1; row < m; row++) {\n      for (let col = 1; col < n; col++) {\n        dp[col] += dp[col - 1];\n      }\n    }\n    return dp[n - 1];\n  }\n}",
+    "input": {
+      "m": 3,
+      "n": 7
+    },
+    "expected": 28
+  },
+  "75": {
+    "code": "class Solution {\n  sortColors(nums) {\n    let left = 0;\n    let right = nums.length - 1;\n    let i = 0;\n    while (i <= right) {\n      if (nums[i] === 0) {\n        const temp = nums[left];\n        nums[left] = nums[i];\n        nums[i] = temp;\n        left++;\n        i++;\n      } else if (nums[i] === 2) {\n        const temp = nums[right];\n        nums[right] = nums[i];\n        nums[i] = temp;\n        right--;\n      } else {\n        i++;\n      }\n    }\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        0,
+        2,
+        1,
+        1,
+        0
+      ]
+    },
+    "expected": [
+      0,
+      0,
+      1,
+      1,
+      2,
+      2
+    ]
+  },
+  "78": {
+    "code": "class Solution {\n  subsets(nums) {\n    const result = [];\n    const backtrack = (start, current) => {\n      result.push([...current]);\n      for (let i = start; i < nums.length; i++) {\n        current.push(nums[i]);\n        backtrack(i + 1, current);\n        current.pop();\n      }\n    };\n    backtrack(0, []);\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      [],
+      [
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3
+      ]
+    ]
+  },
+  "90": {
+    "code": "class Solution {\n  subsetsWithDup(nums) {\n    nums.sort((a, b) => a - b);\n    const result = [];\n    const backtrack = (start, current) => {\n      result.push([...current]);\n      for (let i = start; i < nums.length; i++) {\n        if (i > start && nums[i] === nums[i - 1]) continue;\n        current.push(nums[i]);\n        backtrack(i + 1, current);\n        current.pop();\n      }\n    };\n    backtrack(0, []);\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        2
+      ]
+    },
+    "expected": [
+      [],
+      [
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2,
+        2
+      ],
+      [
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ]
+  },
+  "91": {
+    "code": "class Solution {\n  numDecodings(s) {\n    if (s.length === 0 || s[0] === \"0\") return 0;\n    let oneBack = 1;\n    let twoBack = 1;\n    for (let i = 1; i < s.length; i++) {\n      let current = 0;\n      if (s[i] !== \"0\") current += oneBack;\n      const two = Number(s.slice(i - 1, i + 1));\n      if (two >= 10 && two <= 26) current += twoBack;\n      twoBack = oneBack;\n      oneBack = current;\n    }\n    return oneBack;\n  }\n}",
+    "input": {
+      "s": "12"
+    },
+    "expected": 2
+  },
+  "93": {
+    "code": "class Solution {\n  restoreIpAddresses(s) {\n    const result = [];\n    const backtrack = (start, parts) => {\n      if (parts.length === 4) {\n        if (start === s.length) result.push(parts.join(\".\"));\n        return;\n      }\n      if (start >= s.length) return;\n      for (let len = 1; len <= 3 && start + len <= s.length; len++) {\n        const segment = s.slice(start, start + len);\n        if (len > 1 && segment[0] === \"0\") continue;\n        if (Number(segment) > 255) continue;\n        parts.push(segment);\n        backtrack(start + len, parts);\n        parts.pop();\n      }\n    };\n    backtrack(0, []);\n    return result;\n  }\n}",
+    "input": {
+      "s": "25525511135"
+    },
+    "expected": [
+      "255.255.11.135",
+      "255.255.111.35"
+    ]
+  },
+  "94": {
+    "code": "class Solution {\n  inorderTraversal(root) {\n    const result = [];\n    const walk = (node) => {\n      if (node === null) return;\n      walk(node.left);\n      result.push(node.val);\n      walk(node.right);\n    };\n    walk(root);\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        null,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      1,
+      3,
+      2
+    ]
+  },
+  "96": {
+    "code": "class Solution {\n  numTrees(n) {\n    const dp = new Array(n + 1).fill(0);\n    dp[0] = 1;\n    for (let i = 1; i <= n; i++) {\n      for (let j = 0; j < i; j++) {\n        dp[i] += dp[j] * dp[i - 1 - j];\n      }\n    }\n    return dp[n];\n  }\n}",
+    "input": {
+      "n": 3
+    },
+    "expected": 5
+  },
+  "110": {
+    "code": "class Solution {\n  isBalanced(root) {\n    return this.height(root) !== -1;\n  }\n  height(node) {\n    if (node === null) return 0;\n    const left = this.height(node.left);\n    if (left === -1) return -1;\n    const right = this.height(node.right);\n    if (right === -1) return -1;\n    if (Math.abs(left - right) > 1) return -1;\n    return 1 + Math.max(left, right);\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "expected": true
+  },
+  "118": {
+    "code": "class Solution {\n  generate(numRows) {\n    const triangle = [];\n    for (let row = 0; row < numRows; row++) {\n      const current = new Array(row + 1).fill(1);\n      for (let col = 1; col < row; col++) {\n        current[col] = triangle[row - 1][col - 1] + triangle[row - 1][col];\n      }\n      triangle.push(current);\n    }\n    return triangle;\n  }\n}",
+    "input": {
+      "numRows": 5
+    },
+    "expected": [
+      [
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2,
+        1
+      ],
+      [
+        1,
+        3,
+        3,
+        1
+      ],
+      [
+        1,
+        4,
+        6,
+        4,
+        1
+      ]
+    ]
+  },
+  "131": {
+    "code": "class Solution {\n  partition(s) {\n    const result = [];\n    const backtrack = (start, current) => {\n      if (start === s.length) {\n        result.push([...current]);\n        return;\n      }\n      for (let end = start; end < s.length; end++) {\n        if (this.isPalindrome(s, start, end)) {\n          current.push(s.slice(start, end + 1));\n          backtrack(end + 1, current);\n          current.pop();\n        }\n      }\n    };\n    backtrack(0, []);\n    return result;\n  }\n  isPalindrome(s, left, right) {\n    while (left < right) {\n      if (s[left] !== s[right]) return false;\n      left++;\n      right--;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s": "aab"
+    },
+    "expected": [
+      [
+        "a",
+        "a",
+        "b"
+      ],
+      [
+        "aa",
+        "b"
+      ]
+    ]
+  },
+  "144": {
+    "code": "class Solution {\n  preorderTraversal(root) {\n    const result = [];\n    const walk = (node) => {\n      if (node === null) return;\n      result.push(node.val);\n      walk(node.left);\n      walk(node.right);\n    };\n    walk(root);\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        null,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      3
+    ]
+  },
+  "145": {
+    "code": "class Solution {\n  postorderTraversal(root) {\n    const result = [];\n    const walk = (node) => {\n      if (node === null) return;\n      walk(node.left);\n      walk(node.right);\n      result.push(node.val);\n    };\n    walk(root);\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        null,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      3,
+      2,
+      1
+    ]
+  },
+  "152": {
+    "code": "class Solution {\n  maxProduct(nums) {\n    let best = nums[0];\n    let max = nums[0];\n    let min = nums[0];\n    for (let i = 1; i < nums.length; i++) {\n      const candidates = [nums[i], max * nums[i], min * nums[i]];\n      max = Math.max(...candidates);\n      min = Math.min(...candidates);\n      best = Math.max(best, max);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        3,
+        -2,
+        4
+      ]
+    },
+    "expected": 6
+  },
+  "179": {
+    "code": "class Solution {\n  largestNumber(nums) {\n    const sorted = nums.map(String).sort((a, b) => (b + a).localeCompare(a + b));\n    if (sorted[0] === \"0\") return \"0\";\n    return sorted.join(\"\");\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        30,
+        34,
+        5,
+        9
+      ]
+    },
+    "expected": "9534330"
+  },
+  "203": {
+    "code": "class Solution {\n  removeElements(head, val) {\n    const dummy = new ListNode(0, head);\n    let prev = dummy;\n    let current = head;\n    while (current !== null) {\n      if (current.val === val) prev.next = current.next;\n      else prev = current;\n      current = current.next;\n    }\n    return dummy.next;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        6,
+        3,
+        4,
+        5,
+        6
+      ],
+      "val": 6
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "206": {
+    "code": "class Solution {\n  reverseList(head) {\n    let prev = null;\n    let current = head;\n    while (current !== null) {\n      const next = current.next;\n      current.next = prev;\n      prev = current;\n      current = next;\n    }\n    return prev;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "expected": [
+      5,
+      4,
+      3,
+      2,
+      1
+    ]
+  },
+  "213": {
+    "code": "class Solution {\n  rob(nums) {\n    if (nums.length === 1) return nums[0];\n    const robRange = (start, end) => {\n      let prev = 0;\n      let current = 0;\n      for (let i = start; i <= end; i++) {\n        const next = Math.max(current, prev + nums[i]);\n        prev = current;\n        current = next;\n      }\n      return current;\n    };\n    return Math.max(robRange(0, nums.length - 2), robRange(1, nums.length - 1));\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        3,
+        2
+      ]
+    },
+    "expected": 3
+  },
+  "217": {
+    "code": "class Solution {\n  containsDuplicate(nums) {\n    return new Set(nums).size !== nums.length;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3,
+        1
+      ]
+    },
+    "expected": true
+  },
+  "234": {
+    "code": "class Solution {\n  isPalindrome(head) {\n    let slow = head;\n    let fast = head;\n    while (fast !== null && fast.next !== null) {\n      slow = slow.next;\n      fast = fast.next.next;\n    }\n    let prev = null;\n    let current = slow;\n    while (current !== null) {\n      const next = current.next;\n      current.next = prev;\n      prev = current;\n      current = next;\n    }\n    let left = head;\n    let right = prev;\n    while (right !== null) {\n      if (left.val !== right.val) return false;\n      left = left.next;\n      right = right.next;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        2,
+        1
+      ]
+    },
+    "expected": true
+  },
+  "235": {
+    "code": "class Solution {\n  lowestCommonAncestor(root, p, q) {\n    let node = root;\n    while (node !== null) {\n      if (p < node.val && q < node.val) node = node.left;\n      else if (p > node.val && q > node.val) node = node.right;\n      else return node;\n    }\n    return null;\n  }\n}",
+    "input": {
+      "root": [
+        6,
+        2,
+        8,
+        0,
+        4,
+        7,
+        9,
+        null,
+        null,
+        3,
+        5
+      ],
+      "p": 2,
+      "q": 8
+    },
+    "expected": [
+      6,
+      2,
+      8,
+      0,
+      4,
+      7,
+      9,
+      null,
+      null,
+      3,
+      5
+    ]
+  },
+  "252": {
+    "code": "class Solution {\n  canAttendMeetings(intervals) {\n    const sorted = [...intervals].sort((a, b) => a[0] - b[0]);\n    for (let i = 1; i < sorted.length; i++) {\n      if (sorted[i][0] < sorted[i - 1][1]) return false;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          0,
+          30
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    "expected": false
+  },
+  "253": {
+    "code": "class Solution {\n  minMeetingRooms(intervals) {\n    const starts = intervals.map((i) => i[0]).sort((a, b) => a - b);\n    const ends = intervals.map((i) => i[1]).sort((a, b) => a - b);\n    let rooms = 0;\n    let endIndex = 0;\n    for (const start of starts) {\n      if (start < ends[endIndex]) rooms++;\n      else endIndex++;\n    }\n    return rooms;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          0,
+          30
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    "expected": 2
+  },
+  "263": {
+    "code": "class Solution {\n  isUgly(n) {\n    if (n <= 0) return false;\n    for (const factor of [2, 3, 5]) {\n      while (n % factor === 0) n = n / factor;\n    }\n    return n === 1;\n  }\n}",
+    "input": {
+      "n": 6
+    },
+    "expected": true
+  },
+  "268": {
+    "code": "class Solution {\n  missingNumber(nums) {\n    const n = nums.length;\n    let total = (n * (n + 1)) / 2;\n    for (const num of nums) total -= num;\n    return total;\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        0,
+        1
+      ]
+    },
+    "expected": 2
+  },
+  "279": {
+    "code": "class Solution {\n  numSquares(n) {\n    const dp = new Array(n + 1).fill(Infinity);\n    dp[0] = 0;\n    for (let i = 1; i <= n; i++) {\n      for (let s = 1; s * s <= i; s++) {\n        dp[i] = Math.min(dp[i], dp[i - s * s] + 1);\n      }\n    }\n    return dp[n];\n  }\n}",
+    "input": {
+      "n": 12
+    },
+    "expected": 3
+  },
+  "283": {
+    "code": "class Solution {\n  moveZeroes(nums) {\n    let write = 0;\n    for (let read = 0; read < nums.length; read++) {\n      if (nums[read] !== 0) {\n        nums[write] = nums[read];\n        write++;\n      }\n    }\n    for (let i = write; i < nums.length; i++) nums[i] = 0;\n  }\n}",
+    "input": {
+      "nums": [
+        0,
+        1,
+        0,
+        3,
+        12
+      ]
+    },
+    "expected": [
+      1,
+      3,
+      12,
+      0,
+      0
+    ]
+  },
+  "286": {
+    "code": "class Solution {\n  wallsAndGates(rooms) {\n    const queue = [];\n    for (let r = 0; r < rooms.length; r++) {\n      for (let c = 0; c < rooms[0].length; c++) {\n        if (rooms[r][c] === 0) queue.push([r, c, 0]);\n      }\n    }\n    while (queue.length) {\n      const [r, c, d] = queue.shift();\n      for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) {\n        const nr = r + dr, nc = c + dc;\n        if (nr >= 0 && nr < rooms.length && nc >= 0 && nc < rooms[0].length && rooms[nr][nc] === 2147483647) {\n          rooms[nr][nc] = d + 1;\n          queue.push([nr, nc, d + 1]);\n        }\n      }\n    }\n  }\n}",
+    "input": {
+      "rooms": [
+        [
+          2147483647,
+          -1,
+          0,
+          2147483647
+        ],
+        [
+          2147483647,
+          2147483647,
+          2147483647,
+          -1
+        ],
+        [
+          2147483647,
+          -1,
+          2147483647,
+          -1
+        ],
+        [
+          0,
+          -1,
+          2147483647,
+          2147483647
+        ]
+      ]
+    },
+    "expected": [
+      [
+        3,
+        -1,
+        0,
+        1
+      ],
+      [
+        2,
+        2,
+        1,
+        -1
+      ],
+      [
+        1,
+        -1,
+        2,
+        -1
+      ],
+      [
+        0,
+        -1,
+        3,
+        4
+      ]
+    ]
+  },
+  "287": {
+    "code": "class Solution {\n  findDuplicate(nums) {\n    let slow = nums[0], fast = nums[0];\n    while (true) {\n      slow = nums[slow];\n      fast = nums[nums[fast]];\n      if (slow === fast) break;\n    }\n    slow = nums[0];\n    while (slow !== fast) { slow = nums[slow]; fast = nums[fast]; }\n    return slow;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        3,
+        4,
+        2,
+        2
+      ]
+    },
+    "expected": 2
+  },
+  "329": {
+    "code": "class Solution {\n  longestIncreasingPath(matrix) {\n    const m = matrix.length, n = matrix[0].length;\n    const memo = Array.from({length: m}, () => new Array(n).fill(0));\n    const dfs = (r, c, prev) => {\n      if (r < 0 || r >= m || c < 0 || c >= n || matrix[r][c] <= prev) return 0;\n      if (memo[r][c]) return memo[r][c];\n      let best = 0;\n      for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) {\n        best = Math.max(best, dfs(r + dr, c + dc, matrix[r][c]) + 1);\n      }\n      memo[r][c] = best;\n      return best;\n    };\n    let result = 0;\n    for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) result = Math.max(result, dfs(r, c, -Infinity));\n    return result;\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          9,
+          9,
+          4
+        ],
+        [
+          6,
+          6,
+          8
+        ],
+        [
+          2,
+          1,
+          1
+        ]
+      ]
+    },
+    "expected": 4
+  },
+  "338": {
+    "code": "class Solution {\n  countBits(n) {\n    const result = new Array(n + 1).fill(0);\n    for (let i = 1; i <= n; i++) {\n      result[i] = result[i >> 1] + (i & 1);\n    }\n    return result;\n  }\n}",
+    "input": {
+      "n": 5
+    },
+    "expected": [
+      0,
+      1,
+      1,
+      2,
+      1,
+      2
+    ]
+  },
+  "343": {
+    "code": "class Solution {\n  integerBreak(n) {\n    const dp = new Array(n + 1).fill(0);\n    dp[1] = 1;\n    for (let i = 2; i <= n; i++) {\n      for (let j = 1; j < i; j++) {\n        dp[i] = Math.max(dp[i], j * Math.max(i - j, dp[i - j]));\n      }\n    }\n    return dp[n];\n  }\n}",
+    "input": {
+      "n": 10
+    },
+    "expected": 36
+  },
+  "344": {
+    "code": "class Solution {\n  reverseString(s) {\n    let left = 0;\n    let right = s.length - 1;\n    while (left < right) {\n      const temp = s[left];\n      s[left] = s[right];\n      s[right] = temp;\n      left++;\n      right--;\n    }\n  }\n}",
+    "input": {
+      "s": [
+        "h",
+        "e",
+        "l",
+        "l",
+        "o"
+      ]
+    },
+    "expected": [
+      "o",
+      "l",
+      "l",
+      "e",
+      "h"
+    ]
+  },
+  "347": {
+    "code": "class Solution {\n  topKFrequent(nums, k) {\n    const counts = new Map();\n    for (const num of nums) counts.set(num, (counts.get(num) ?? 0) + 1);\n    const buckets = new Array(nums.length + 1).fill(0).map(() => []);\n    for (const [num, count] of counts) buckets[count].push(num);\n    const result = [];\n    for (let i = buckets.length - 1; i >= 0 && result.length < k; i--) {\n      for (const num of buckets[i]) {\n        result.push(num);\n        if (result.length === k) break;\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "k": 2
+    },
+    "expected": [
+      1,
+      2
+    ]
+  },
+  "367": {
+    "code": "class Solution {\n  isPerfectSquare(num) {\n    let left = 1;\n    let right = num;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      const square = mid * mid;\n      if (square === num) return true;\n      if (square < num) left = mid + 1;\n      else right = mid - 1;\n    }\n    return false;\n  }\n}",
+    "input": {
+      "num": 16
+    },
+    "expected": true
+  },
+  "371": {
+    "code": "class Solution {\n  getSum(a, b) {\n    while (b !== 0) {\n      const carry = (a & b) << 1;\n      a = a ^ b;\n      b = carry;\n    }\n    return a;\n  }\n}",
+    "input": {
+      "a": 1,
+      "b": 2
+    },
+    "expected": 3
+  },
+  "377": {
+    "code": "class Solution {\n  combinationSum4(nums, target) {\n    const dp = new Array(target + 1).fill(0);\n    dp[0] = 1;\n    for (let i = 1; i <= target; i++) {\n      for (const num of nums) {\n        if (num <= i) dp[i] += dp[i - num];\n      }\n    }\n    return dp[target];\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3
+      ],
+      "target": 4
+    },
+    "expected": 7
+  },
+  "416": {
+    "code": "class Solution {\n  canPartition(nums) {\n    const total = nums.reduce((sum, num) => sum + num, 0);\n    if (total % 2 !== 0) return false;\n    const target = total / 2;\n    const possible = new Array(target + 1).fill(false);\n    possible[0] = true;\n    for (const num of nums) {\n      for (let sum = target; sum >= num; sum--) {\n        if (possible[sum - num]) possible[sum] = true;\n      }\n    }\n    return possible[target];\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        5,
+        11,
+        5
+      ]
+    },
+    "expected": true
+  },
+  "417": {
+    "code": "class Solution {\n  pacificAtlantic(heights) {\n    const m = heights.length, n = heights[0].length;\n    const pac = Array.from({length: m}, () => new Array(n).fill(false));\n    const atl = Array.from({length: m}, () => new Array(n).fill(false));\n    const dfs = (r, c, visited, prev) => {\n      if (r < 0 || r >= m || c < 0 || c >= n || visited[r][c] || heights[r][c] < prev) return;\n      visited[r][c] = true;\n      for (const [dr, dc] of [[0,1],[0,-1],[1,0],[-1,0]]) dfs(r + dr, c + dc, visited, heights[r][c]);\n    };\n    for (let i = 0; i < m; i++) { dfs(i, 0, pac, -Infinity); dfs(i, n - 1, atl, -Infinity); }\n    for (let j = 0; j < n; j++) { dfs(0, j, pac, -Infinity); dfs(m - 1, j, atl, -Infinity); }\n    const result = [];\n    for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) if (pac[r][c] && atl[r][c]) result.push([r, c]);\n    return result;\n  }\n}",
+    "input": {
+      "heights": [
+        [
+          1,
+          2,
+          2,
+          3,
+          5
+        ],
+        [
+          3,
+          2,
+          3,
+          4,
+          4
+        ],
+        [
+          2,
+          4,
+          5,
+          3,
+          1
+        ],
+        [
+          6,
+          7,
+          1,
+          4,
+          5
+        ],
+        [
+          5,
+          1,
+          1,
+          2,
+          4
+        ]
+      ]
+    },
+    "expected": [
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ]
+    ]
+  },
+  "424": {
+    "code": "class Solution {\n  characterReplacement(s, k) {\n    const counts = new Array(26).fill(0);\n    let left = 0;\n    let best = 0;\n    let maxCount = 0;\n    for (let right = 0; right < s.length; right++) {\n      const index = s.charCodeAt(right) - 65;\n      counts[index]++;\n      maxCount = Math.max(maxCount, counts[index]);\n      if (right - left + 1 - maxCount > k) {\n        counts[s.charCodeAt(left) - 65]--;\n        left++;\n      }\n      best = Math.max(best, right - left + 1);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "s": "ABAB",
+      "k": 2
+    },
+    "expected": 4
+  },
+  "435": {
+    "code": "class Solution {\n  eraseOverlapIntervals(intervals) {\n    const sorted = [...intervals].sort((a, b) => a[1] - b[1]);\n    let keep = 0;\n    let end = -Infinity;\n    for (const [start, finish] of sorted) {\n      if (start >= end) {\n        keep++;\n        end = finish;\n      }\n    }\n    return intervals.length - keep;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    "expected": 1
+  },
+  "438": {
+    "code": "class Solution {\n  findAnagrams(s, p) {\n    const result = [];\n    const need = new Array(26).fill(0);\n    for (const char of p) need[char.charCodeAt(0) - 97]++;\n    const window = new Array(26).fill(0);\n    for (let right = 0; right < s.length; right++) {\n      window[s.charCodeAt(right) - 97]++;\n      const left = right - p.length + 1;\n      if (left > 0) window[s.charCodeAt(left - 1) - 97]--;\n      if (left >= 0 && this.equal(need, window)) result.push(left);\n    }\n    return result;\n  }\n  equal(a, b) {\n    for (let i = 0; i < 26; i++) {\n      if (a[i] !== b[i]) return false;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s": "cbaebabacd",
+      "p": "abc"
+    },
+    "expected": [
+      0,
+      6
+    ]
+  },
+  "441": {
+    "code": "class Solution {\n  arrangeCoins(n) {\n    let left = 1;\n    let right = n;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      const used = (mid * (mid + 1)) / 2;\n      if (used <= n) left = mid + 1;\n      else right = mid - 1;\n    }\n    return right;\n  }\n}",
+    "input": {
+      "n": 5
+    },
+    "expected": 2
+  },
+  "448": {
+    "code": "class Solution {\n  findDisappearedNumbers(nums) {\n    for (const num of nums) {\n      const index = Math.abs(num) - 1;\n      if (nums[index] > 0) nums[index] = -nums[index];\n    }\n    const result = [];\n    for (let i = 0; i < nums.length; i++) {\n      if (nums[i] > 0) result.push(i + 1);\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        4,
+        3,
+        2,
+        7,
+        8,
+        2,
+        3,
+        1
+      ]
+    },
+    "expected": [
+      5,
+      6
+    ]
+  },
+  "450": {
+    "code": "class Solution {\n  deleteNode(root, key) {\n    if (root === null) return null;\n    if (key < root.val) root.left = this.deleteNode(root.left, key);\n    else if (key > root.val) root.right = this.deleteNode(root.right, key);\n    else {\n      if (root.left === null) return root.right;\n      if (root.right === null) return root.left;\n      let successor = root.right;\n      while (successor.left !== null) successor = successor.left;\n      root.val = successor.val;\n      root.right = this.deleteNode(root.right, successor.val);\n    }\n    return root;\n  }\n}",
+    "input": {
+      "root": [
+        5,
+        3,
+        6,
+        2,
+        4,
+        null,
+        7
+      ],
+      "key": 3
+    },
+    "expected": [
+      5,
+      4,
+      6,
+      2,
+      null,
+      null,
+      7
+    ]
+  },
+  "455": {
+    "code": "class Solution {\n  findContentChildren(g, s) {\n    g.sort((a, b) => a - b);\n    s.sort((a, b) => a - b);\n    let child = 0;\n    let cookie = 0;\n    while (child < g.length && cookie < s.length) {\n      if (s[cookie] >= g[child]) child++;\n      cookie++;\n    }\n    return child;\n  }\n}",
+    "input": {
+      "g": [
+        1,
+        2,
+        3
+      ],
+      "s": [
+        1,
+        1
+      ]
+    },
+    "expected": 1
+  },
+  "463": {
+    "code": "class Solution {\n  islandPerimeter(grid) {\n    let perimeter = 0;\n    for (let r = 0; r < grid.length; r++) {\n      for (let c = 0; c < grid[0].length; c++) {\n        if (grid[r][c] === 1) {\n          perimeter += 4;\n          if (r > 0 && grid[r - 1][c] === 1) perimeter -= 2;\n          if (c > 0 && grid[r][c - 1] === 1) perimeter -= 2;\n        }\n      }\n    }\n    return perimeter;\n  }\n}",
+    "input": {
+      "grid": [
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "expected": 16
+  },
+  "494": {
+    "code": "class Solution {\n  findTargetSumWays(nums, target) {\n    const total = nums.reduce((a, b) => a + b, 0);\n    if ((total + target) % 2 || (total + target) < 0) return 0;\n    const sum = (total + target) / 2;\n    const dp = new Array(sum + 1).fill(0);\n    dp[0] = 1;\n    for (const num of nums) {\n      for (let i = sum; i >= num; i--) dp[i] += dp[i - num];\n    }\n    return dp[sum];\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "target": 3
+    },
+    "expected": 5
+  },
+  "496": {
+    "code": "class Solution {\n  nextGreaterElement(nums1, nums2) {\n    const map = new Map();\n    const stack = [];\n    for (const num of nums2) {\n      while (stack.length && stack[stack.length - 1] < num) {\n        map.set(stack.pop(), num);\n      }\n      stack.push(num);\n    }\n    return nums1.map(num => map.get(num) ?? -1);\n  }\n}",
+    "input": {
+      "nums1": [
+        4,
+        1,
+        2
+      ],
+      "nums2": [
+        1,
+        3,
+        4,
+        2
+      ]
+    },
+    "expected": [
+      -1,
+      3,
+      -1
+    ]
+  },
+  "513": {
+    "code": "class Solution {\n  findBottomLeftValue(root) {\n    const queue = [root];\n    let result = root.val;\n    while (queue.length) {\n      const sz = queue.length;\n      for (let i = 0; i < sz; i++) {\n        const node = queue.shift();\n        if (i === 0) result = node.val;\n        if (node.left) queue.push(node.left);\n        if (node.right) queue.push(node.right);\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        2,
+        1,
+        3
+      ]
+    },
+    "expected": 1
+  },
+  "516": {
+    "code": "class Solution {\n  longestPalindromeSubseq(s) {\n    const n = s.length;\n    const dp = new Array(n).fill(0).map(() => new Array(n).fill(0));\n    for (let i = n - 1; i >= 0; i--) {\n      dp[i][i] = 1;\n      for (let j = i + 1; j < n; j++) {\n        if (s[i] === s[j]) dp[i][j] = dp[i + 1][j - 1] + 2;\n        else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);\n      }\n    }\n    return dp[0][n - 1];\n  }\n}",
+    "input": {
+      "s": "bbbab"
+    },
+    "expected": 4
+  },
+  "518": {
+    "code": "class Solution {\n  change(amount, coins) {\n    const ways = new Array(amount + 1).fill(0);\n    ways[0] = 1;\n    for (const coin of coins) {\n      for (let sum = coin; sum <= amount; sum++) {\n        ways[sum] += ways[sum - coin];\n      }\n    }\n    return ways[amount];\n  }\n}",
+    "input": {
+      "amount": 5,
+      "coins": [
+        1,
+        2,
+        5
+      ]
+    },
+    "expected": 4
+  },
+  "543": {
+    "code": "class Solution {\n  diameterOfBinaryTree(root) {\n    let best = 0;\n    const depth = (node) => {\n      if (node === null) return 0;\n      const left = depth(node.left);\n      const right = depth(node.right);\n      best = Math.max(best, left + right);\n      return 1 + Math.max(left, right);\n    };\n    depth(root);\n    return best;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "expected": 3
+  },
+  "560": {
+    "code": "class Solution {\n  subarraySum(nums, k) {\n    const prefix = new Map();\n    prefix.set(0, 1);\n    let sum = 0;\n    let count = 0;\n    for (const num of nums) {\n      sum += num;\n      count += prefix.get(sum - k) ?? 0;\n      prefix.set(sum, (prefix.get(sum) ?? 0) + 1);\n    }\n    return count;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        1,
+        1
+      ],
+      "k": 2
+    },
+    "expected": 2,
+    "bruteCode": "class Solution {\n  subarraySum(nums, k) {\n    let count = 0;\n    for (let i = 0; i < nums.length; i++) {\n      let sum = 0;\n      for (let j = i; j < nums.length; j++) {\n        sum += nums[j];\n        if (sum === k) count++;\n      }\n    }\n    return count;\n  }\n}"
+  },
+  "567": {
+    "code": "class Solution {\n  checkInclusion(s1, s2) {\n    if (s1.length > s2.length) return false;\n    const need = new Array(26).fill(0);\n    for (const char of s1) need[char.charCodeAt(0) - 97]++;\n    const window = new Array(26).fill(0);\n    for (let right = 0; right < s2.length; right++) {\n      window[s2.charCodeAt(right) - 97]++;\n      const left = right - s1.length;\n      if (left >= 0) window[s2.charCodeAt(left) - 97]--;\n      if (right >= s1.length - 1 && this.equal(need, window)) return true;\n    }\n    return false;\n  }\n  equal(a, b) {\n    for (let i = 0; i < 26; i++) {\n      if (a[i] !== b[i]) return false;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s1": "ab",
+      "s2": "eidbaooo"
+    },
+    "expected": true
+  },
+  "572": {
+    "code": "class Solution {\n  isSubtree(root, subRoot) {\n    if (root === null) return false;\n    if (this.same(root, subRoot)) return true;\n    return this.isSubtree(root.left, subRoot) || this.isSubtree(root.right, subRoot);\n  }\n  same(a, b) {\n    if (a === null && b === null) return true;\n    if (a === null || b === null) return false;\n    return a.val === b.val && this.same(a.left, b.left) && this.same(a.right, b.right);\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        4,
+        5,
+        1,
+        2
+      ],
+      "subRoot": [
+        4,
+        1,
+        2
+      ]
+    },
+    "expected": true
+  },
+  "583": {
+    "code": "class Solution {\n  minDistance(word1, word2) {\n    const m = word1.length, n = word2.length;\n    const dp = Array.from({length: m + 1}, (_, i) => new Array(n + 1).fill(0).map((_, j) => i + j));\n    for (let i = 1; i <= m; i++) {\n      for (let j = 1; j <= n; j++) {\n        if (word1[i - 1] === word2[j - 1]) dp[i][j] = dp[i - 1][j - 1];\n        else dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1]);\n      }\n    }\n    return dp[m][n];\n  }\n}",
+    "input": {
+      "word1": "sea",
+      "word2": "eat"
+    },
+    "expected": 2
+  },
+  "605": {
+    "code": "class Solution {\n  canPlaceFlowers(flowerbed, n) {\n    let count = 0;\n    for (let i = 0; i < flowerbed.length; i++) {\n      if (flowerbed[i] === 0) {\n        const leftOk = i === 0 || flowerbed[i - 1] === 0;\n        const rightOk = i === flowerbed.length - 1 || flowerbed[i + 1] === 0;\n        if (leftOk && rightOk) { flowerbed[i] = 1; count++; }\n      }\n    }\n    return count >= n;\n  }\n}",
+    "input": {
+      "flowerbed": [
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "n": 1
+    },
+    "expected": true
+  },
+  "606": {
+    "code": "class Solution {\n  tree2str(root) {\n    if (root === null) return \"\";\n    if (root.left === null && root.right === null) return String(root.val);\n    const left = this.tree2str(root.left);\n    const right = this.tree2str(root.right);\n    let result = String(root.val) + \"(\" + left + \")\";\n    if (right !== \"\") result += \"(\" + right + \")\";\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "expected": "1(2(4))(3)"
+  },
+  "617": {
+    "code": "class Solution {\n  mergeTrees(root1, root2) {\n    if (root1 === null) return root2;\n    if (root2 === null) return root1;\n    root1.val += root2.val;\n    root1.left = this.mergeTrees(root1.left, root2.left);\n    root1.right = this.mergeTrees(root1.right, root2.right);\n    return root1;\n  }\n}",
+    "input": {
+      "root1": [
+        1,
+        3,
+        2,
+        5
+      ],
+      "root2": [
+        2,
+        1,
+        3,
+        null,
+        4,
+        null,
+        7
+      ]
+    },
+    "expected": [
+      3,
+      4,
+      5,
+      5,
+      4,
+      null,
+      7
+    ]
+  },
+  "621": {
+    "code": "class Solution {\n  leastInterval(tasks, n) {\n    const counts = new Array(26).fill(0);\n    for (const task of tasks) counts[task.charCodeAt(0) - 65]++;\n    const maxCount = Math.max(...counts);\n    const maxTasks = counts.filter((count) => count === maxCount).length;\n    return Math.max(tasks.length, (maxCount - 1) * (n + 1) + maxTasks);\n  }\n}",
+    "input": {
+      "tasks": [
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B"
+      ],
+      "n": 2
+    },
+    "expected": 8
+  },
+  "669": {
+    "code": "class Solution {\n  trimBST(root, low, high) {\n    if (!root) return null;\n    if (root.val < low) return this.trimBST(root.right, low, high);\n    if (root.val > high) return this.trimBST(root.left, low, high);\n    root.left = this.trimBST(root.left, low, high);\n    root.right = this.trimBST(root.right, low, high);\n    return root;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        0,
+        2
+      ],
+      "low": 1,
+      "high": 2
+    },
+    "expected": [
+      1,
+      null,
+      2
+    ]
+  },
+  "673": {
+    "code": "class Solution {\n  findNumberOfLIS(nums) {\n    const n = nums.length;\n    const len = new Array(n).fill(1);\n    const count = new Array(n).fill(1);\n    let maxLen = 1;\n    for (let i = 1; i < n; i++) {\n      for (let j = 0; j < i; j++) {\n        if (nums[j] < nums[i]) {\n          if (len[j] + 1 > len[i]) { len[i] = len[j] + 1; count[i] = count[j]; }\n          else if (len[j] + 1 === len[i]) count[i] += count[j];\n        }\n      }\n      maxLen = Math.max(maxLen, len[i]);\n    }\n    let result = 0;\n    for (let i = 0; i < n; i++) if (len[i] === maxLen) result += count[i];\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        3,
+        5,
+        4,
+        7
+      ]
+    },
+    "expected": 2
+  },
+  "680": {
+    "code": "class Solution {\n  validPalindrome(s) {\n    let left = 0;\n    let right = s.length - 1;\n    while (left < right) {\n      if (s[left] !== s[right]) {\n        return this.isPalindrome(s, left + 1, right) || this.isPalindrome(s, left, right - 1);\n      }\n      left++;\n      right--;\n    }\n    return true;\n  }\n  isPalindrome(s, left, right) {\n    while (left < right) {\n      if (s[left] !== s[right]) return false;\n      left++;\n      right--;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s": "abca"
+    },
+    "expected": true
+  },
+  "682": {
+    "code": "class Solution {\n  calPoints(operations) {\n    const stack = [];\n    for (const op of operations) {\n      if (op === \"C\") stack.pop();\n      else if (op === \"D\") stack.push(stack[stack.length - 1] * 2);\n      else if (op === \"+\") stack.push(stack[stack.length - 1] + stack[stack.length - 2]);\n      else stack.push(Number(op));\n    }\n    return stack.reduce((sum, value) => sum + value, 0);\n  }\n}",
+    "input": {
+      "operations": [
+        "5",
+        "2",
+        "C",
+        "D",
+        "+"
+      ]
+    },
+    "expected": 30
+  },
+  "684": {
+    "code": "class Solution {\n  findRedundantConnection(edges) {\n    const parent = Array.from({length: edges.length + 1}, (_, i) => i);\n    const find = (x) => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };\n    for (const [a, b] of edges) {\n      if (find(a) === find(b)) return [a, b];\n      parent[find(a)] = find(b);\n    }\n    return [];\n  }\n}",
+    "input": {
+      "edges": [
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    "expected": [
+      2,
+      3
+    ]
+  },
+  "695": {
+    "code": "class Solution {\n  maxAreaOfIsland(grid) {\n    let best = 0;\n    const dfs = (r, c) => {\n      if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] === 0) return 0;\n      grid[r][c] = 0;\n      return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1);\n    };\n    for (let r = 0; r < grid.length; r++) {\n      for (let c = 0; c < grid[0].length; c++) {\n        if (grid[r][c] === 1) best = Math.max(best, dfs(r, c));\n      }\n    }\n    return best;\n  }\n}",
+    "input": {
+      "grid": [
+        [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "expected": 3
+  },
+  "701": {
+    "code": "class Solution {\n  insertIntoBST(root, val) {\n    if (root === null) return new TreeNode(val);\n    if (val < root.val) root.left = this.insertIntoBST(root.left, val);\n    else root.right = this.insertIntoBST(root.right, val);\n    return root;\n  }\n}",
+    "input": {
+      "root": [
+        4,
+        2,
+        7,
+        1,
+        3
+      ],
+      "val": 5
+    },
+    "expected": [
+      4,
+      2,
+      7,
+      1,
+      3,
+      5
+    ]
+  },
+  "704": {
+    "code": "class Solution {\n  search(nums, target) {\n    let left = 0;\n    let right = nums.length - 1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] === target) return mid;\n      if (nums[mid] < target) left = mid + 1;\n      else right = mid - 1;\n    }\n    return -1;\n  }\n}",
+    "input": {
+      "nums": [
+        -1,
+        0,
+        3,
+        5,
+        9,
+        12
+      ],
+      "target": 9
+    },
+    "expected": 4
+  },
+  "724": {
+    "code": "class Solution {\n  pivotIndex(nums) {\n    const total = nums.reduce((a, b) => a + b, 0);\n    let left = 0;\n    for (let i = 0; i < nums.length; i++) {\n      if (left === total - left - nums[i]) return i;\n      left += nums[i];\n    }\n    return -1;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        7,
+        3,
+        6,
+        5,
+        6
+      ]
+    },
+    "expected": 3
+  },
+  "735": {
+    "code": "class Solution {\n  asteroidCollision(asteroids) {\n    const stack = [];\n    for (const asteroid of asteroids) {\n      let alive = true;\n      while (alive && asteroid < 0 && stack.length > 0 && stack[stack.length - 1] > 0) {\n        const top = stack[stack.length - 1];\n        if (top < -asteroid) {\n          stack.pop();\n        } else if (top === -asteroid) {\n          stack.pop();\n          alive = false;\n        } else {\n          alive = false;\n        }\n      }\n      if (alive) stack.push(asteroid);\n    }\n    return stack;\n  }\n}",
+    "input": {
+      "asteroids": [
+        5,
+        10,
+        -5
+      ]
+    },
+    "expected": [
+      5,
+      10
+    ]
+  },
+  "739": {
+    "code": "class Solution {\n  dailyTemperatures(temperatures) {\n    const result = new Array(temperatures.length).fill(0);\n    const stack = [];\n    for (let i = 0; i < temperatures.length; i++) {\n      while (stack.length > 0 && temperatures[i] > temperatures[stack[stack.length - 1]]) {\n        const index = stack.pop();\n        result[index] = i - index;\n      }\n      stack.push(i);\n    }\n    return result;\n  }\n}",
+    "input": {
+      "temperatures": [
+        73,
+        74,
+        75,
+        71,
+        69,
+        72,
+        76,
+        73
+      ]
+    },
+    "expected": [
+      1,
+      1,
+      4,
+      2,
+      1,
+      1,
+      0,
+      0
+    ]
+  },
+  "746": {
+    "code": "class Solution {\n  minCostClimbingStairs(cost) {\n    let prev = 0;\n    let current = 0;\n    for (let i = 2; i <= cost.length; i++) {\n      const next = Math.min(current + cost[i - 1], prev + cost[i - 2]);\n      prev = current;\n      current = next;\n    }\n    return current;\n  }\n}",
+    "input": {
+      "cost": [
+        10,
+        15,
+        20
+      ]
+    },
+    "expected": 15
+  },
+  "763": {
+    "code": "class Solution {\n  partitionLabels(s) {\n    const last = {};\n    for (let i = 0; i < s.length; i++) last[s[i]] = i;\n    const result = [];\n    let start = 0;\n    let end = 0;\n    for (let i = 0; i < s.length; i++) {\n      end = Math.max(end, last[s[i]]);\n      if (i === end) {\n        result.push(end - start + 1);\n        start = end + 1;\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "s": "ababcbacadefegdehijhklij"
+    },
+    "expected": [
+      9,
+      7,
+      8
+    ]
+  },
+  "846": {
+    "code": "class Solution {\n  isNStraightHand(hand, groupSize) {\n    if (hand.length % groupSize !== 0) return false;\n    const counts = new Map();\n    for (const card of hand) counts.set(card, (counts.get(card) ?? 0) + 1);\n    const unique = [...counts.keys()].sort((a, b) => a - b);\n    for (const card of unique) {\n      const count = counts.get(card);\n      if (count === 0) continue;\n      for (let next = card; next < card + groupSize; next++) {\n        const available = counts.get(next) ?? 0;\n        if (available < count) return false;\n        counts.set(next, available - count);\n      }\n    }\n    return true;\n  }\n}",
+    "input": {
+      "hand": [
+        1,
+        2,
+        3,
+        6,
+        2,
+        3,
+        4,
+        7,
+        8
+      ],
+      "groupSize": 3
+    },
+    "expected": true
+  },
+  "853": {
+    "code": "class Solution {\n  carFleet(target, position, speed) {\n    const cars = position.map((pos, i) => [pos, (target - pos) / speed[i]]);\n    cars.sort((a, b) => b[0] - a[0]);\n    let fleets = 0;\n    let slowest = 0;\n    for (const [, time] of cars) {\n      if (time > slowest) {\n        fleets++;\n        slowest = time;\n      }\n    }\n    return fleets;\n  }\n}",
+    "input": {
+      "target": 12,
+      "position": [
+        10,
+        8,
+        0,
+        5,
+        3
+      ],
+      "speed": [
+        2,
+        4,
+        1,
+        1,
+        3
+      ]
+    },
+    "expected": 3
+  },
+  "875": {
+    "code": "class Solution {\n  minEatingSpeed(piles, h) {\n    const canEat = (speed) => {\n      let hours = 0;\n      for (const pile of piles) hours += Math.ceil(pile / speed);\n      return hours <= h;\n    };\n    let left = 1;\n    let right = Math.max(...piles);\n    while (left < right) {\n      const mid = Math.floor((left + right) / 2);\n      if (canEat(mid)) right = mid;\n      else left = mid + 1;\n    }\n    return left;\n  }\n}",
+    "input": {
+      "piles": [
+        3,
+        6,
+        7,
+        11
+      ],
+      "h": 8
+    },
+    "expected": 4
+  },
+  "876": {
+    "code": "class Solution {\n  middleNode(head) {\n    let slow = head;\n    let fast = head;\n    while (fast !== null && fast.next !== null) {\n      slow = slow.next;\n      fast = fast.next.next;\n    }\n    return slow;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "expected": [
+      3,
+      4,
+      5
+    ]
+  },
+  "881": {
+    "code": "class Solution {\n  numRescueBoats(people, limit) {\n    people.sort((a, b) => a - b);\n    let left = 0;\n    let right = people.length - 1;\n    let boats = 0;\n    while (left <= right) {\n      if (people[left] + people[right] <= limit) left++;\n      right--;\n      boats++;\n    }\n    return boats;\n  }\n}",
+    "input": {
+      "people": [
+        1,
+        2
+      ],
+      "limit": 3
+    },
+    "expected": 1
+  },
+  "912": {
+    "code": "class Solution {\n  sortArray(nums) {\n    return nums.slice().sort((a, b) => a - b);\n  }\n}",
+    "input": {
+      "nums": [
+        5,
+        2,
+        3,
+        1
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      5
+    ]
+  },
+  "929": {
+    "code": "class Solution {\n  numUniqueEmails(emails) {\n    const seen = new Set();\n    for (const email of emails) {\n      const [local, domain] = email.split(\"@\");\n      const cleaned = local.split(\"+\")[0].replace(/\\./g, \"\");\n      seen.add(cleaned + \"@\" + domain);\n    }\n    return seen.size;\n  }\n}",
+    "input": {
+      "emails": [
+        "test.email+alex@leetcode.com",
+        "test.e.mail+bob.cathy@leetcode.com",
+        "testemail+david@lee.tcode.com"
+      ]
+    },
+    "expected": 2
+  },
+  "931": {
+    "code": "class Solution {\n  minFallingPathSum(matrix) {\n    const n = matrix.length;\n    for (let i = 1; i < n; i++) {\n      for (let j = 0; j < n; j++) {\n        let min = matrix[i - 1][j];\n        if (j > 0) min = Math.min(min, matrix[i - 1][j - 1]);\n        if (j < n - 1) min = Math.min(min, matrix[i - 1][j + 1]);\n        matrix[i][j] += min;\n      }\n    }\n    return Math.min(...matrix[n - 1]);\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          2,
+          1,
+          3
+        ],
+        [
+          6,
+          5,
+          4
+        ],
+        [
+          7,
+          8,
+          9
+        ]
+      ]
+    },
+    "expected": 13
+  },
+  "951": {
+    "code": "class Solution {\n  flipEquiv(root1, root2) {\n    if (!root1 && !root2) return true;\n    if (!root1 || !root2 || root1.val !== root2.val) return false;\n    return (this.flipEquiv(root1.left, root2.left) && this.flipEquiv(root1.right, root2.right)) ||\n           (this.flipEquiv(root1.left, root2.right) && this.flipEquiv(root1.right, root2.left));\n  }\n}",
+    "input": {
+      "root1": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        null,
+        null,
+        null,
+        7,
+        8
+      ],
+      "root2": [
+        1,
+        3,
+        2,
+        null,
+        6,
+        4,
+        5,
+        null,
+        null,
+        null,
+        null,
+        8,
+        7
+      ]
+    },
+    "expected": true
+  },
+  "973": {
+    "code": "class Solution {\n  kClosest(points, k) {\n    return points.sort((a, b) => (a[0] ** 2 + a[1] ** 2) - (b[0] ** 2 + b[1] ** 2)).slice(0, k);\n  }\n}",
+    "input": {
+      "points": [
+        [
+          3,
+          3
+        ],
+        [
+          5,
+          -1
+        ],
+        [
+          -2,
+          4
+        ]
+      ],
+      "k": 2
+    },
+    "expected": [
+      [
+        3,
+        3
+      ],
+      [
+        -2,
+        4
+      ]
+    ]
+  },
+  "977": {
+    "code": "class Solution {\n  sortedSquares(nums) {\n    const result = new Array(nums.length);\n    let left = 0;\n    let right = nums.length - 1;\n    for (let i = nums.length - 1; i >= 0; i--) {\n      if (Math.abs(nums[left]) > Math.abs(nums[right])) {\n        result[i] = nums[left] * nums[left];\n        left++;\n      } else {\n        result[i] = nums[right] * nums[right];\n        right--;\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        -4,
+        -1,
+        0,
+        3,
+        10
+      ]
+    },
+    "expected": [
+      0,
+      1,
+      9,
+      16,
+      100
+    ]
+  },
+  "1029": {
+    "code": "class Solution {\n  twoCitySchedCost(costs) {\n    const sorted = [...costs].sort((a, b) => a[0] - a[1] - (b[0] - b[1]));\n    let total = 0;\n    const half = sorted.length / 2;\n    for (let i = 0; i < sorted.length; i++) {\n      total += i < half ? sorted[i][0] : sorted[i][1];\n    }\n    return total;\n  }\n}",
+    "input": {
+      "costs": [
+        [
+          10,
+          20
+        ],
+        [
+          30,
+          200
+        ],
+        [
+          400,
+          50
+        ],
+        [
+          30,
+          20
+        ]
+      ]
+    },
+    "expected": 110
+  },
+  "1041": {
+    "code": "class Solution {\n  isRobotBounded(instructions) {\n    let x = 0;\n    let y = 0;\n    let direction = 0;\n    const dx = [0, 1, 0, -1];\n    const dy = [1, 0, -1, 0];\n    for (const instruction of instructions) {\n      if (instruction === \"G\") {\n        x += dx[direction];\n        y += dy[direction];\n      } else if (instruction === \"L\") {\n        direction = (direction + 3) % 4;\n      } else {\n        direction = (direction + 1) % 4;\n      }\n    }\n    return (x === 0 && y === 0) || direction !== 0;\n  }\n}",
+    "input": {
+      "instructions": "GGLLGG"
+    },
+    "expected": true
+  },
+  "1046": {
+    "code": "class Solution {\n  lastStoneWeight(stones) {\n    stones.sort((a, b) => b - a);\n    while (stones.length > 1) {\n      const a = stones.shift(), b = stones.shift();\n      if (a !== b) { stones.push(a - b); stones.sort((x, y) => y - x); }\n    }\n    return stones[0] || 0;\n  }\n}",
+    "input": {
+      "stones": [
+        2,
+        7,
+        4,
+        1,
+        8,
+        1
+      ]
+    },
+    "expected": 1
+  },
+  "1048": {
+    "code": "class Solution {\n  longestStrChain(words) {\n    words.sort((a, b) => a.length - b.length);\n    const dp = new Map();\n    let best = 1;\n    for (const word of words) {\n      dp.set(word, 1);\n      for (let i = 0; i < word.length; i++) {\n        const prev = word.slice(0, i) + word.slice(i + 1);\n        if (dp.has(prev)) { dp.set(word, Math.max(dp.get(word), dp.get(prev) + 1)); best = Math.max(best, dp.get(word)); }\n      }\n    }\n    return best;\n  }\n}",
+    "input": {
+      "words": [
+        "a",
+        "b",
+        "ba",
+        "bca",
+        "bda",
+        "bdca"
+      ]
+    },
+    "expected": 4
+  },
+  "1091": {
+    "code": "class Solution {\n  shortestPathBinaryMatrix(grid) {\n    if (grid[0][0] || grid[grid.length - 1][grid[0].length - 1]) return -1;\n    const n = grid.length;\n    const queue = [[0, 0, 1]];\n    grid[0][0] = 1;\n    while (queue.length) {\n      const [r, c, d] = queue.shift();\n      if (r === n - 1 && c === n - 1) return d;\n      for (let dr = -1; dr <= 1; dr++) {\n        for (let dc = -1; dc <= 1; dc++) {\n          const nr = r + dr, nc = c + dc;\n          if (nr >= 0 && nr < n && nc >= 0 && nc < n && grid[nr][nc] === 0) {\n            grid[nr][nc] = 1;\n            queue.push([nr, nc, d + 1]);\n          }\n        }\n      }\n    }\n    return -1;\n  }\n}",
+    "input": {
+      "grid": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "expected": 2
+  },
+  "1094": {
+    "code": "class Solution {\n  carPooling(trips, capacity) {\n    const timeline = new Array(1001).fill(0);\n    for (const [passengers, from, to] of trips) {\n      timeline[from] += passengers;\n      timeline[to] -= passengers;\n    }\n    let current = 0;\n    for (const change of timeline) {\n      current += change;\n      if (current > capacity) return false;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "trips": [
+        [
+          2,
+          1,
+          5
+        ],
+        [
+          3,
+          3,
+          7
+        ]
+      ],
+      "capacity": 4
+    },
+    "expected": false
+  },
+  "1143": {
+    "code": "class Solution {\n  longestCommonSubsequence(text1, text2) {\n    const rows = text1.length;\n    const cols = text2.length;\n    const dp = new Array(rows + 1).fill(0).map(() => new Array(cols + 1).fill(0));\n    for (let i = 1; i <= rows; i++) {\n      for (let j = 1; j <= cols; j++) {\n        if (text1[i - 1] === text2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n        else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n      }\n    }\n    return dp[rows][cols];\n  }\n}",
+    "input": {
+      "text1": "abcde",
+      "text2": "ace"
+    },
+    "expected": 3
+  },
+  "1189": {
+    "code": "class Solution {\n  maxNumberOfBalloons(text) {\n    const counts = {};\n    for (const char of text) counts[char] = (counts[char] || 0) + 1;\n    return Math.floor(\n      Math.min(\n        counts[\"b\"] || 0,\n        counts[\"a\"] || 0,\n        Math.floor((counts[\"l\"] || 0) / 2),\n        Math.floor((counts[\"o\"] || 0) / 2),\n        counts[\"n\"] || 0,\n      ),\n    );\n  }\n}",
+    "input": {
+      "text": "nlaebolko"
+    },
+    "expected": 1
+  },
+  "1209": {
+    "code": "class Solution {\n  removeDuplicates(s, k) {\n    const stack = [];\n    for (const char of s) {\n      if (stack.length > 0 && stack[stack.length - 1][0] === char) {\n        stack[stack.length - 1][1]++;\n        if (stack[stack.length - 1][1] === k) stack.pop();\n      } else {\n        stack.push([char, 1]);\n      }\n    }\n    return stack.map(([char, count]) => char.repeat(count)).join(\"\");\n  }\n}",
+    "input": {
+      "s": "abcd",
+      "k": 2
+    },
+    "expected": "abcd"
+  },
+  "1288": {
+    "code": "class Solution {\n  removeCoveredIntervals(intervals) {\n    const sorted = [...intervals].sort((a, b) => a[0] - b[0] || b[1] - a[1]);\n    let covered = 0;\n    let maxEnd = -Infinity;\n    for (const [start, end] of sorted) {\n      if (end <= maxEnd) covered++;\n      else maxEnd = end;\n    }\n    return intervals.length - covered;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          1,
+          4
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          8
+        ]
+      ]
+    },
+    "expected": 2
+  },
+  "1299": {
+    "code": "class Solution {\n  replaceElements(arr) {\n    const result = new Array(arr.length);\n    let max = -1;\n    for (let i = arr.length - 1; i >= 0; i--) {\n      result[i] = max;\n      max = Math.max(max, arr[i]);\n    }\n    return result;\n  }\n}",
+    "input": {
+      "arr": [
+        17,
+        18,
+        5,
+        4,
+        6,
+        1
+      ]
+    },
+    "expected": [
+      18,
+      6,
+      6,
+      6,
+      1,
+      -1
+    ]
+  },
+  "1312": {
+    "code": "class Solution {\n  minInsertions(s) {\n    const n = s.length;\n    const dp = Array.from({length: n}, () => new Array(n).fill(0));\n    for (let len = 2; len <= n; len++) {\n      for (let i = 0; i <= n - len; i++) {\n        const j = i + len - 1;\n        if (s[i] === s[j]) dp[i][j] = dp[i + 1][j - 1];\n        else dp[i][j] = 1 + Math.min(dp[i + 1][j], dp[i][j - 1]);\n      }\n    }\n    return dp[0][n - 1];\n  }\n}",
+    "input": {
+      "s": "zzazz"
+    },
+    "expected": 0
+  },
+  "1448": {
+    "code": "class Solution {\n  goodNodes(root) {\n    return this.count(root, -Infinity);\n  }\n  count(node, maxSoFar) {\n    if (node === null) return 0;\n    const good = node.val >= maxSoFar ? 1 : 0;\n    const nextMax = Math.max(maxSoFar, node.val);\n    return good + this.count(node.left, nextMax) + this.count(node.right, nextMax);\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        1,
+        4,
+        3,
+        null,
+        1,
+        5
+      ]
+    },
+    "expected": 4
+  },
+  "1461": {
+    "code": "class Solution {\n  hasAllCodes(s, k) {\n    const total = 1 << k;\n    const seen = new Set();\n    for (let i = 0; i <= s.length - k; i++) seen.add(s.slice(i, i + k));\n    return seen.size === total;\n  }\n}",
+    "input": {
+      "s": "00110110",
+      "k": 2
+    },
+    "expected": true
+  },
+  "1498": {
+    "code": "class Solution {\n  numSubseq(nums, target) {\n    const MOD = 1e9 + 7;\n    nums.sort((a, b) => a - b);\n    let result = 0;\n    const pow2 = new Array(nums.length).fill(1);\n    for (let i = 1; i < nums.length; i++) pow2[i] = (pow2[i - 1] * 2) % MOD;\n    let left = 0, right = nums.length - 1;\n    while (left <= right) {\n      if (nums[left] + nums[right] <= target) { result = (result + pow2[right - left]) % MOD; left++; }\n      else right--;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        5,
+        6,
+        7
+      ],
+      "target": 9
+    },
+    "expected": 4
+  },
+  "1584": {
+    "code": "class Solution {\n  minCostConnectPoints(points) {\n    const n = points.length;\n    const visited = new Set([0]);\n    const minDist = new Array(n).fill(Infinity);\n    for (let i = 1; i < n; i++) minDist[i] = Math.abs(points[0][0] - points[i][0]) + Math.abs(points[0][1] - points[i][1]);\n    let result = 0;\n    while (visited.size < n) {\n      let bestNode = -1, bestDist = Infinity;\n      for (let i = 0; i < n; i++) {\n        if (!visited.has(i) && minDist[i] < bestDist) { bestDist = minDist[i]; bestNode = i; }\n      }\n      visited.add(bestNode);\n      result += bestDist;\n      for (let i = 0; i < n; i++) {\n        if (!visited.has(i)) {\n          const dist = Math.abs(points[bestNode][0] - points[i][0]) + Math.abs(points[bestNode][1] - points[i][1]);\n          minDist[i] = Math.min(minDist[i], dist);\n        }\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          7,
+          0
+        ]
+      ]
+    },
+    "expected": 20
+  },
+  "1911": {
+    "code": "class Solution {\n  maxAlternatingSum(nums) {\n    let odd = 0, even = 0;\n    for (const num of nums) {\n      even = Math.max(even, odd - num);\n      odd = Math.max(odd, even + num);\n    }\n    return odd;\n  }\n}",
+    "input": {
+      "nums": [
+        4,
+        2,
+        5,
+        3
+      ]
+    },
+    "expected": 7
+  },
+  "1921": {
+    "code": "class Solution {\n  eliminateMaximum(dist, speed) {\n    const times = dist.map((d, i) => d / speed[i]).sort((a, b) => a - b);\n    for (let i = 0; i < times.length; i++) {\n      if (times[i] <= i) return i;\n    }\n    return times.length;\n  }\n}",
+    "input": {
+      "dist": [
+        4,
+        2,
+        3
+      ],
+      "speed": [
+        2,
+        1,
+        1
+      ]
+    },
+    "expected": 3
+  },
+  "1929": {
+    "code": "class Solution {\n  getConcatenation(nums) {\n    return nums.concat(nums);\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        1
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      1,
+      1,
+      2,
+      1
+    ]
+  },
+  "2028": {
+    "code": "class Solution {\n  missingRolls(rolls, mean, n) {\n    const total = mean * (rolls.length + n);\n    let missing = total;\n    for (const roll of rolls) missing -= roll;\n    if (missing < n || missing > 6 * n) return [];\n    const base = Math.floor(missing / n);\n    const remainder = missing % n;\n    const result = new Array(n).fill(base);\n    for (let i = 0; i < remainder; i++) result[i]++;\n    return result;\n  }\n}",
+    "input": {
+      "rolls": [
+        3,
+        2,
+        4,
+        3
+      ],
+      "mean": 4,
+      "n": 2
+    },
+    "expected": [
+      6,
+      6
+    ]
+  },
+  "2130": {
+    "code": "class Solution {\n  pairSum(head) {\n    let slow = head;\n    let fast = head;\n    while (fast !== null && fast.next !== null) {\n      slow = slow.next;\n      fast = fast.next.next;\n    }\n    let prev = null;\n    let current = slow;\n    while (current !== null) {\n      const next = current.next;\n      current.next = prev;\n      prev = current;\n      current = next;\n    }\n    let left = head;\n    let right = prev;\n    let best = 0;\n    while (right !== null) {\n      best = Math.max(best, left.val + right.val);\n      left = left.next;\n      right = right.next;\n    }\n    return best;\n  }\n}",
+    "input": {
+      "head": [
+        5,
+        4,
+        2,
+        1
+      ]
+    },
+    "expected": 6
+  }
+}

@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 97%;
+  --foreground: 0 0% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 8%;
+  --primary: 0 0% 8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 93%;
+  --secondary-foreground: 0 0% 15%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 43%;
+  --accent: 0 0% 92%;
+  --accent-foreground: 0 0% 12%;
+  --destructive: 0 74% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 88%;
+  --input: 0 0% 88%;
+  --ring: 0 0% 8%;
+  --radius: 0.5rem;
+  --chart-1: 0 0% 40%;
+  --chart-2: 14 80% 55%;
+  --chart-3: 258 62% 58%;
+  --chart-4: 40 90% 52%;
+  --chart-5: 152 55% 38%;
+}
+
+.dark {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 0 0% 96%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 0 0% 18%;
+  --secondary-foreground: 0 0% 94%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 0 0% 19%;
+  --accent-foreground: 0 0% 94%;
+  --destructive: 0 72% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+  --ring: 0 0% 92%;
+  --chart-1: 0 0% 64%;
+  --chart-2: 14 76% 64%;
+  --chart-3: 258 64% 72%;
+  --chart-4: 40 92% 60%;
+  --chart-5: 152 52% 50%;
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+button,
+textarea,
+input,
+select {
+  font: inherit;
+}
+
+code,
+pre,
+textarea {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.18);
+}
+
+/* CodeMirror editor (Phase 2.1) — blend with the app theme */
+.cm-theme-light,
+.cm-theme-dark {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* The @uiw/react-codemirror `height="100%"` prop only sets height on
+   .cm-editor, not on its wrapper (classed cm-theme-light / cm-theme-dark) —
+   so with auto height the editor grows to fit long code and the panel's
+   overflow-hidden clips it instead of scrolling. Pin the wrapper to the
+   panel so the scroller takes over. */
+.cm-theme-light,
+.cm-theme-dark,
+.cm-theme-light > .cm-editor,
+.cm-theme-dark > .cm-editor {
+  height: 100%;
+}
+
+.cm-editor .cm-trace-active-line {
+  background-color: hsl(var(--chart-4) / 0.28);
+  box-shadow: inset 3px 0 0 hsl(var(--chart-4) / 0.85);
+}
+
+.dark .cm-editor .cm-trace-active-line {
+  background-color: hsl(var(--chart-4) / 0.38);
+  box-shadow: inset 3px 0 0 hsl(var(--chart-4) / 0.9);
+}
+
+.cm-editor .cm-scroller {
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* Code editor: indentation guides (a 1px line at the left edge of each
+   guide mark, so it spans the full line height) */
+.cm-editor .cm-indent-guide {
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--muted-foreground) / 0.28) 1px,
+    transparent 1px
+  );
+}
+
+/* Resizable panel dividers (react-resizable-panels) */
+[data-separator] {
+  background-color: hsl(var(--border));
+  transition: background-color 120ms ease;
+}
+
+[data-separator]:hover,
+[data-separator][data-separator="active"],
+[data-separator][data-separator="focus"] {
+  background-color: hsl(var(--ring) / 0.55);
+}
+
+/* Run-in-progress skeleton: a light sweep across the placeholder bars so the
+   canvas reads as "building the trace" instead of a static gray block. */
+@keyframes dsa-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.dsa-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.18) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 400px 100%;
+  background-repeat: no-repeat;
+  animation: dsa-shimmer 1.4s linear infinite;
+}
+
+/* Hide scrollbars on horizontal-scroll toolbars (mobile top bar) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Variables panel: flash the value cell when it changed this step */
+@keyframes variable-flash {
+  0% {
+    background-color: hsl(var(--chart-4) / 0.45);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.variable-value-flash {
+  border-radius: 3px;
+  animation: variable-flash 900ms ease-out;
+}

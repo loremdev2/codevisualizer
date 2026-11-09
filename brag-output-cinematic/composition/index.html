@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>DSA Lab — Brag (Cinematic)</title>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="assets/audio-data.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0f0f0f;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        color: #f5f5f5;
+      }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .clip { position: absolute; inset: 0; display: grid; place-items: center; }
+      .mono { font-family: ui-monospace, Menlo, monospace; }
+      .vignette { position: absolute; inset: 0; pointer-events: none; }
+
+      /* ---------- Scene 1: cold open ---------- */
+      #s1-stack { display: flex; flex-direction: column; align-items: center; gap: 34px; }
+      #s1-read { font-size: 74px; font-weight: 500; color: #a3a3a3; letter-spacing: 0.06em; opacity: 0; }
+      #s1-see { font-size: 172px; font-weight: 700; color: #42dcfa; letter-spacing: -0.01em; opacity: 0; }
+
+      /* ---------- Scene 2: title card ---------- */
+      #s2-title-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 30px; opacity: 0; }
+      #s2-eyebrow { color: #42dcfa; font-size: 23px; font-weight: 600; letter-spacing: 0.34em; text-transform: uppercase; opacity: 0; }
+      #s2-word { font-size: 168px; font-weight: 750; letter-spacing: 0.10em; line-height: 1; }
+      #s2-underline { width: 560px; height: 9px; border-radius: 5px; background: #42dcfa; transform-origin: left center; }
+      #s2-sub { font-size: 27px; color: #a3a3a3; letter-spacing: 0.02em; opacity: 0; }
+
+      /* ---------- Scene 3: the machine + trailer beat ---------- */
+      #s3-camera { position: absolute; inset: 0; display: grid; place-items: center; }
+      #s3-window {
+        width: 1560px; height: 800px; border-radius: 20px;
+        background: #121214; border: 1px solid #383838;
+        box-shadow: 0 48px 110px rgba(0,0,0,0.6);
+        padding: 36px 42px 30px; display: flex; flex-direction: column; opacity: 0;
+      }
+      #s3-head { display: flex; align-items: center; gap: 16px; }
+      #s3-title { font-size: 31px; font-weight: 600; }
+      #s3-badge { font-size: 17px; letter-spacing: 0.2em; text-transform: uppercase; color: #42dcfa; }
+      #s3-run {
+        margin-left: auto; padding: 10px 24px; border-radius: 10px;
+        border: 1px solid #42dcfa; color: #42dcfa; background: rgba(66,220,250,0.07);
+        font-size: 21px; font-weight: 600;
+      }
+      #s3-body { flex: 1; display: flex; gap: 56px; padding-top: 20px; }
+      #s3-chart { position: relative; width: 980px; flex: none; }
+      #s3-bracket { position: absolute; left: 40px; top: 0; width: 300px; height: 74px; }
+      #s3-note1, #s3-note2 { position: absolute; left: 0; width: 300px; text-align: center; top: 46px; font-size: 23px; color: #42dcfa; opacity: 0; }
+      #s3-note1.on { opacity: 1; }
+      #s3-bars { position: absolute; left: 0; top: 74px; display: flex; gap: 22px; }
+      .s3-cell { width: 142px; height: 250px; display: flex; align-items: flex-end; }
+      .s3-bar { width: 142px; border-radius: 9px 9px 0 0; background: #a3a3a3; color: #1c1c1f;
+        font-size: 25px; font-weight: 600; text-align: center; padding-top: 8px; }
+      #s3-indices { position: absolute; left: 0; top: 332px; display: flex; gap: 22px; }
+      .s3-idx { width: 142px; text-align: center; font-size: 17px; color: #a1a1aa; }
+      #s3-pointers { position: absolute; left: 0; top: 360px; width: 980px; height: 60px; }
+      #s3-pj { position: absolute; left: 0; top: 0; width: 142px; text-align: center; font-size: 21px; color: #fa9e42; }
+      #s3-pi { position: absolute; left: 0; top: 32px; width: 142px; text-align: center; font-size: 21px; color: #42dcfa; }
+      #s3-rail { flex: 1; border-radius: 12px; background: #0c0c0e; border: 1px solid #27272a; padding: 24px 30px; height: 420px; }
+      .s3-rail-row { font-size: 24px; line-height: 2.4; color: #a1a1aa; white-space: pre; }
+      .s3-rail-row .name { color: #e4e4e7; }
+      .s3-val { position: relative; display: inline-block; min-width: 48px; height: 44px; border-radius: 5px; }
+      .s3-val span { position: absolute; left: 8px; top: 0; color: #42dcfa; opacity: 0; }
+      .s3-val .on { opacity: 1; }
+      #s3-code { position: absolute; left: 42px; bottom: 92px; width: 700px; opacity: 0; }
+      .s3-code-line { font-size: 19px; line-height: 1.6; color: #d4d4d8; white-space: pre; opacity: 0; }
+      .s3-code-line .kw { color: #42dcfa; }
+      #s3-play { height: 10px; border-radius: 5px; background: #232327; overflow: hidden; margin-top: 18px; }
+      #s3-play-fill { width: 100%; height: 100%; border-radius: 5px; background: #42dcfa; transform: scaleX(0.2); transform-origin: left center; }
+
+      /* ---------- Scene 4: outro ---------- */
+      #s4-stack { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+      #s4-line1 { font-size: 54px; font-weight: 500; color: #a3a3a3; opacity: 0; }
+      #s4-line2 { font-size: 110px; font-weight: 700; letter-spacing: -0.015em; opacity: 0; }
+      #s4-dot { color: #42dcfa; }
+      #s4-logo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+      #s4-eyebrow { color: #42dcfa; font-size: 22px; font-weight: 600; letter-spacing: 0.34em; text-transform: uppercase; opacity: 0; }
+      #s4-word { font-size: 150px; font-weight: 750; letter-spacing: 0.06em; opacity: 0; }
+      #s4-cta { padding: 18px 40px; border-radius: 13px; border: 1px solid #383838; background: #1a1a1a; font-size: 27px; font-weight: 600; opacity: 0; }
+      #s4-cta .arrow { color: #42dcfa; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="22.12"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Scene 1 — Cold open: read / see (0.00–4.23) -->
+      <section id="s1" class="clip" data-start="0" data-duration="4.23" data-track-index="1">
+        <div id="s1-stack">
+          <div id="s1-read" class="mono">read.</div>
+          <div id="s1-see">see.</div>
+        </div>
+      </section>
+
+      <!-- Scene 2 — Title card (4.23–7.92) -->
+      <section id="s2" class="clip" data-start="4.23" data-duration="3.69" data-track-index="2">
+        <div class="vignette" id="s2-vignette" style="background: radial-gradient(ellipse at center, rgba(0,0,0,0) 52%, rgba(0,0,0,0.5) 100%); opacity: 0.75;"></div>
+        <div id="s2-title-wrap">
+          <div id="s2-eyebrow">Practice algorithms visually</div>
+          <div id="s2-word">DSA&nbsp;LAB</div>
+          <div id="s2-underline"></div>
+          <div id="s2-sub">Every comparison. Every swap. Every call.</div>
+        </div>
+      </section>
+
+      <!-- Scene 3 — The machine + trailer beat (7.92–15.03) -->
+      <section id="s3" class="clip" data-start="7.92" data-duration="7.11" data-track-index="3">
+        <div id="s3-camera">
+          <div id="s3-window">
+            <div id="s3-head">
+              <span id="s3-title">Bubble sort</span>
+              <span id="s3-badge">Trace</span>
+              <span id="s3-run" class="mono">▶ Run</span>
+            </div>
+            <div id="s3-body">
+              <div id="s3-chart">
+                <div id="s3-bracket">
+                  <svg width="300" height="74" viewBox="0 0 300 74" fill="none" aria-hidden="true">
+                    <path d="M 30 62 Q 150 -6 270 62" stroke="#42dcfa" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                    <path d="M 30 62 l 9 -12 M 30 62 l 14 3" stroke="#42dcfa" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 270 62 l -9 -12 M 270 62 l -14 3" stroke="#42dcfa" stroke-width="3.5" stroke-linecap="round"/>
+                  </svg>
+                  <div id="s3-note1" class="mono on">8 &gt; 3 → swap</div>
+                  <div id="s3-note2" class="mono">8 &gt; 5 → swap</div>
+                </div>
+                <div id="s3-bars">
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar0" style="height: 216px">8</div></div>
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar1" style="height: 81px">3</div></div>
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar2" style="height: 135px">5</div></div>
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar3" style="height: 48px">1</div></div>
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar4" style="height: 243px">9</div></div>
+                  <div class="s3-cell"><div class="s3-bar" id="s3-bar5" style="height: 54px">2</div></div>
+                </div>
+                <div id="s3-indices">
+                  <div class="s3-idx">0</div><div class="s3-idx">1</div><div class="s3-idx">2</div>
+                  <div class="s3-idx">3</div><div class="s3-idx">4</div><div class="s3-idx">5</div>
+                </div>
+                <div id="s3-pointers">
+                  <div id="s3-pj" class="mono">▼ j</div>
+                  <div id="s3-pi" class="mono">▼ i</div>
+                </div>
+              </div>
+              <div id="s3-rail">
+                <div class="s3-panel-label" style="font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase; color: #a1a1aa; margin-bottom: 14px;">Variables</div>
+                <div class="s3-rail-row mono"><span class="name">i:</span> 0</div>
+                <div class="s3-rail-row mono"><span class="name">j:</span>
+                  <span class="s3-val"><span class="on" id="s3-jv1">0</span><span id="s3-jv2">1</span></span>
+                </div>
+                <div class="s3-rail-row mono"><span class="name">swaps:</span>
+                  <span class="s3-val"><span class="on" id="s3-sw1">0</span><span id="s3-sw2">1</span><span id="s3-sw3">2</span></span>
+                </div>
+              </div>
+            </div>
+            <div id="s3-code" class="mono">
+              <div class="s3-code-line"><span class="kw">for</span> (<span class="kw">let</span> j = 0; j &lt; arr.length - i - 1; j++) {</div>
+              <div class="s3-code-line">  <span class="kw">if</span> (arr[j] &gt; arr[j + 1]) {</div>
+              <div class="s3-code-line">    [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];</div>
+            </div>
+            <div id="s3-play"><div id="s3-play-fill"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 4 — Outro (15.03–22.12) -->
+      <section id="s4" class="clip" data-start="15.03" data-duration="7.09" data-track-index="4">
+        <div id="s4-stack">
+          <div id="s4-line1">You've read code your whole life.</div>
+          <div id="s4-line2">Now you can<span id="s4-dot">.</span></div>
+        </div>
+        <div id="s4-logo">
+          <div id="s4-eyebrow">Practice algorithms visually</div>
+          <div id="s4-word">DSA&nbsp;LAB</div>
+          <div id="s4-cta">Open visualizer <span class="arrow">→</span></div>
+        </div>
+      </section>
+
+      <!-- Music: vol 9 -->
+      <audio
+        id="music"
+        src="assets/music/happy-beats-business-moves-vol-9-by-ende-dot-app.mp3"
+        data-start="0"
+        data-duration="22.12"
+        data-track-index="20"
+        data-volume="0.5"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0.35},{"t":3.2,"v":0.5},{"t":10.4,"v":0.62},{"t":11.6,"v":0.62},{"t":12.4,"v":0.5},{"t":20.6,"v":0.5},{"t":22.1,"v":0}]}]}'
+      ></audio>
+
+      <!-- SFX -->
+      <audio id="key1" src="assets/sfx/keyboard/keypress-001.wav" data-start="1.0" data-duration="0.6" data-track-index="21" data-volume="0.26"></audio>
+      <audio id="key2" src="assets/sfx/keyboard/keypress-002.wav" data-start="1.6" data-duration="0.6" data-track-index="21" data-volume="0.26"></audio>
+      <audio id="key3" src="assets/sfx/keyboard/keypress-003.wav" data-start="2.2" data-duration="0.6" data-track-index="21" data-volume="0.26"></audio>
+      <audio id="slam" src="assets/sfx/impactSoft_medium_001.ogg" data-start="3.70" data-duration="0.6" data-track-index="21" data-volume="0.72"></audio>
+      <audio id="title-hit" src="assets/sfx/impactSoft_medium_004.ogg" data-start="6.34" data-duration="0.6" data-track-index="21" data-volume="0.60"></audio>
+      <audio id="run-click" src="assets/sfx/click_003.ogg" data-start="9.50" data-duration="0.6" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="swap1" src="assets/sfx/drop_001.ogg" data-start="10.54" data-duration="0.6" data-track-index="21" data-volume="0.66"></audio>
+      <audio id="swap2" src="assets/sfx/drop_001.ogg" data-start="11.60" data-duration="0.6" data-track-index="21" data-volume="0.5"></audio>
+      <audio id="logo-hit" src="assets/sfx/impactSoft_medium_001.ogg" data-start="20.02" data-duration="0.6" data-track-index="21" data-volume="0.6"></audio>
+    </div>
+
+    <script>
+      var tl = gsap.timeline({ paused: true });
+
+      /* ============ Scene 1 — cold open (0–4.23) ============ */
+      // "read." types in via clip-path reveal (seek-safe), key ticks at 1.0/1.6/2.2
+      tl.fromTo("#s1-read", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.7, ease: "none" }, 0.9);
+      tl.fromTo("#s1-read", { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.9);
+      // beat-locked: 3.70s — "see." slam with decaying shake
+      tl.fromTo("#s1-see", { scale: 1.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.in" }, 3.48);
+      tl.fromTo("#s1-stack", { x: 0 }, { x: 7, duration: 0.05, ease: "power1.out" }, 3.70);
+      tl.to("#s1-stack", { x: -6, duration: 0.05 }, 3.75);
+      tl.to("#s1-stack", { x: 4, duration: 0.05 }, 3.80);
+      tl.to("#s1-stack", { x: 0, duration: 0.06 }, 3.85);
+
+      /* ============ Scene 2 — title card (4.23–7.92) ============ */
+      // beat-locked: 6.34s — title slam
+      tl.fromTo("#s2-title-wrap", { scale: 1.10, opacity: 0 }, { scale: 1.04, opacity: 1, duration: 0.3, ease: "power3.out" }, 6.04);
+      tl.to("#s2-title-wrap", { scale: 1.0, duration: 1.4, ease: "none" }, 6.34);
+      tl.fromTo("#s2-underline", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 6.38);
+      tl.fromTo("#s2-eyebrow", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 6.66);
+      tl.fromTo("#s2-sub", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 6.86);
+      // audio-reactive: vignette breathes with bass (pre-extracted vol.9 bands, 4.2–7.93s)
+      (function () {
+        var d = window.AUDIO && window.AUDIO.vignette;
+        if (!d || !d.frames) return;
+        for (var f = 0; f < d.frames.length; f++) {
+          var t = 4.2 + f / 30;
+          var bass = d.frames[f][0] || 0;
+          tl.set("#s2-vignette", { opacity: (0.55 + 0.35 * bass).toFixed(3) }, Math.min(t, 7.9));
+        }
+      })();
+
+      /* ============ Scene 3 — machine + trailer beat (7.92–15.03) ============ */
+      tl.fromTo("#s3-window", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1.0, duration: 0.6, ease: "power2.out" }, 7.92);
+      // beat-grid: code lines 8.44 / 8.96 / 9.50
+      tl.fromTo("#s3-code", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, 8.20);
+      tl.fromTo("#s3-code .s3-code-line:nth-child(1)", { opacity: 0 }, { opacity: 1, duration: 0.12 }, 8.44);
+      tl.fromTo("#s3-code .s3-code-line:nth-child(2)", { opacity: 0 }, { opacity: 1, duration: 0.12 }, 8.96);
+      tl.fromTo("#s3-code .s3-code-line:nth-child(3)", { opacity: 0 }, { opacity: 1, duration: 0.12 }, 9.50);
+      // run click pulse at 9.50
+      tl.to("#s3-run", { scale: 0.92, duration: 0.09, ease: "power2.in" }, 9.50);
+      tl.to("#s3-run", { scale: 1, duration: 0.16, ease: "power2.out" }, 9.59);
+      // punch-in: camera pushes toward the bars, held through the beat
+      tl.to("#s3-camera", { scale: 1.12, x: -60, y: -20, duration: 1.0, ease: "power2.inOut" }, 10.14);
+      // beat-locked: 10.54s — swap 1 with impact
+      tl.fromTo("#s3-bracket", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 10.20);
+      tl.to("#s3-bar0", { x: 164, duration: 0.55, ease: "power2.inOut" }, 10.54);
+      tl.to("#s3-bar1", { x: -164, duration: 0.55, ease: "power2.inOut" }, 10.54);
+      tl.to("#s3-bar0", { backgroundColor: "#f97316", duration: 0.1 }, 10.54);
+      tl.to("#s3-bar1", { backgroundColor: "#f97316", duration: 0.1 }, 10.54);
+      tl.set("#s3-sw1", { opacity: 0 }, 10.54);
+      tl.set("#s3-sw2", { opacity: 1 }, 10.54);
+      tl.to("#s3-pj", { x: 164, duration: 0.55, ease: "power2.inOut" }, 10.54);
+      tl.to("#s3-bar0", { backgroundColor: "#ec8a6d", duration: 0.3 }, 11.09);
+      tl.to("#s3-bar1", { backgroundColor: "#ec8a6d", duration: 0.3 }, 11.09);
+      tl.to("#s3-bar2", { backgroundColor: "#ec8a6d", duration: 0.3 }, 11.12);
+      tl.to("#s3-bracket", { x: 164, duration: 0.34, ease: "power2.inOut" }, 11.15);
+      tl.set("#s3-note1", { opacity: 0 }, 11.15);
+      tl.set("#s3-note2", { opacity: 1 }, 11.15);
+      // beat-grid: 11.60 — swap 2
+      tl.to("#s3-bar0", { x: 328, duration: 0.55, ease: "power2.inOut" }, 11.60);
+      tl.to("#s3-bar2", { x: -164, duration: 0.55, ease: "power2.inOut" }, 11.60);
+      tl.to("#s3-bar0", { backgroundColor: "#f97316", duration: 0.1 }, 11.60);
+      tl.to("#s3-bar2", { backgroundColor: "#f97316", duration: 0.1 }, 11.60);
+      tl.set("#s3-sw2", { opacity: 0 }, 11.60);
+      tl.set("#s3-sw3", { opacity: 1 }, 11.60);
+      tl.set("#s3-jv1", { opacity: 0 }, 11.60);
+      tl.set("#s3-jv2", { opacity: 1 }, 11.60);
+      tl.to("#s3-pj", { x: 328, duration: 0.55, ease: "power2.inOut" }, 11.60);
+      tl.to("#s3-bar0", { backgroundColor: "#ec8a6d", duration: 0.3 }, 12.15);
+      tl.to("#s3-bar2", { backgroundColor: "#ec8a6d", duration: 0.3 }, 12.15);
+      tl.to("#s3-bar1", { backgroundColor: "#a3a3a3", duration: 0.3 }, 12.18);
+      tl.fromTo("#s3-play-fill", { scaleX: 0.2 }, { scaleX: 0.55, duration: 6.9, ease: "none" }, 8.13);
+
+      /* ============ Scene 4 — outro (15.03–22.12) ============ */
+      tl.fromTo("#s4-line1", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 15.23);
+      tl.fromTo("#s4-line2", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 16.10);
+      tl.to("#s4-stack", { opacity: 0, y: -20, duration: 0.45, ease: "power2.in" }, 19.30);
+      // beat-grid: 20.02 — wordmark + CTA
+      tl.fromTo("#s4-eyebrow", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 19.82);
+      tl.fromTo("#s4-word", { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "power3.out" }, 20.02);
+      tl.fromTo("#s4-cta", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.32, ease: "power2.out" }, 20.55);
+      // audio-reactive: wordmark glow breathes with vol.9 bass (19.8–22.1s)
+      (function () {
+        var d = window.AUDIO && window.AUDIO.glow;
+        if (!d || !d.frames) return;
+        for (var f = 0; f < d.frames.length; f++) {
+          var t = 19.8 + f / 30;
+          if (t < 20.02) continue;
+          var bass = d.frames[f][0] || 0;
+          var glow = "0 0 " + (12 + 52 * bass).toFixed(1) + "px rgba(66,220,250," + (0.22 + 0.42 * bass).toFixed(3) + ")";
+          tl.set("#s4-word", { textShadow: glow }, Math.min(t, 22.05));
+        }
+      })();
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

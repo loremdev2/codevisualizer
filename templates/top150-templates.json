@@ -1,0 +1,2418 @@
+{
+  "1": {
+    "code": "class Solution {\n  twoSum(nums, target) {\n    const seen = new Map();\n    for (let i = 0; i < nums.length; i++) {\n      const complement = target - nums[i];\n      if (seen.has(complement)) return [seen.get(complement), i];\n      seen.set(nums[i], i);\n    }\n    return [];\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        7,
+        11,
+        15
+      ],
+      "target": 9
+    },
+    "expected": [
+      0,
+      1
+    ],
+    "bruteCode": "class Solution {\n  twoSum(nums, target) {\n    for (let i = 0; i < nums.length; i++) {\n      for (let j = i + 1; j < nums.length; j++) {\n        if (nums[i] + nums[j] === target) return [i, j];\n      }\n    }\n    return [];\n  }\n}"
+  },
+  "2": {
+    "code": "class Solution {\n  addTwoNumbers(l1, l2) {\n    const dummy = new ListNode(0);\n    let tail = dummy;\n    let carry = 0;\n    while (l1 !== null || l2 !== null || carry > 0) {\n      const sum = (l1 ? l1.val : 0) + (l2 ? l2.val : 0) + carry;\n      carry = Math.floor(sum / 10);\n      tail.next = new ListNode(sum % 10);\n      tail = tail.next;\n      if (l1) l1 = l1.next;\n      if (l2) l2 = l2.next;\n    }\n    return dummy.next;\n  }\n}",
+    "input": {
+      "l1": [
+        2,
+        4,
+        3
+      ],
+      "l2": [
+        5,
+        6,
+        4
+      ]
+    },
+    "expected": [
+      7,
+      0,
+      8
+    ]
+  },
+  "3": {
+    "code": "class Solution {\n  lengthOfLongestSubstring(s) {\n    const seen = new Map();\n    let left = 0;\n    let best = 0;\n    for (let right = 0; right < s.length; right++) {\n      const char = s[right];\n      if (seen.has(char) && seen.get(char) >= left) {\n        left = seen.get(char) + 1;\n      }\n      seen.set(char, right);\n      best = Math.max(best, right - left + 1);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "s": "abcabcbb"
+    },
+    "expected": 3,
+    "bruteCode": "class Solution {\n  lengthOfLongestSubstring(s) {\n    let best = 0;\n    for (let i = 0; i < s.length; i++) {\n      const seen = new Set();\n      for (let j = i; j < s.length; j++) {\n        if (seen.has(s[j])) break;\n        seen.add(s[j]);\n        best = Math.max(best, j - i + 1);\n      }\n    }\n    return best;\n  }\n}"
+  },
+  "4": {
+    "code": "class Solution {\n  findMedianSortedArrays(nums1, nums2) {\n    let a = nums1;\n    let b = nums2;\n    if (a.length > b.length) {\n      const temp = a;\n      a = b;\n      b = temp;\n    }\n    const total = a.length + b.length;\n    const half = Math.floor((total + 1) / 2);\n    let left = 0;\n    let right = a.length;\n    while (left <= right) {\n      const i = Math.floor((left + right) / 2);\n      const j = half - i;\n      const aLeft = i > 0 ? a[i - 1] : -Infinity;\n      const aRight = i < a.length ? a[i] : Infinity;\n      const bLeft = j > 0 ? b[j - 1] : -Infinity;\n      const bRight = j < b.length ? b[j] : Infinity;\n      if (aLeft <= bRight && bLeft <= aRight) {\n        if (total % 2 === 1) return Math.max(aLeft, bLeft);\n        return (Math.max(aLeft, bLeft) + Math.min(aRight, bRight)) / 2;\n      }\n      if (aLeft > bRight) right = i - 1;\n      else left = i + 1;\n    }\n    return 0;\n  }\n}",
+    "input": {
+      "nums1": [
+        1,
+        3
+      ],
+      "nums2": [
+        2
+      ]
+    },
+    "expected": 2
+  },
+  "5": {
+    "code": "class Solution {\n  longestPalindrome(s) {\n    let best = \"\";\n    for (let i = 0; i < s.length; i++) {\n      const odd = this.expand(s, i, i);\n      const even = this.expand(s, i, i + 1);\n      if (odd.length > best.length) best = odd;\n      if (even.length > best.length) best = even;\n    }\n    return best;\n  }\n  expand(s, left, right) {\n    while (left >= 0 && right < s.length && s[left] === s[right]) {\n      left--;\n      right++;\n    }\n    return s.slice(left + 1, right);\n  }\n}",
+    "input": {
+      "s": "babad"
+    },
+    "expected": "bab",
+    "bruteCode": "class Solution {\n  longestPalindrome(s) {\n    let best = \"\";\n    for (let i = 0; i < s.length; i++) {\n      for (let j = i; j < s.length; j++) {\n        const sub = s.slice(i, j + 1);\n        if (sub === sub.split(\"\").reverse().join(\"\") && sub.length > best.length) {\n          best = sub;\n        }\n      }\n    }\n    return best;\n  }\n}"
+  },
+  "6": {
+    "code": "class Solution {\n  convert(s, numRows) {\n    if (numRows === 1) return s;\n    const rows = new Array(Math.min(numRows, s.length)).fill(\"\");\n    let current = 0;\n    let goingDown = false;\n    for (const char of s) {\n      rows[current] += char;\n      if (current === 0 || current === numRows - 1) goingDown = !goingDown;\n      current += goingDown ? 1 : -1;\n    }\n    return rows.join(\"\");\n  }\n}",
+    "input": {
+      "s": "PAYPALISHIRING",
+      "numRows": 3
+    },
+    "expected": "PAHNAPLSIIGYIR"
+  },
+  "9": {
+    "code": "class Solution {\n  isPalindrome(x) {\n    if (x < 0) return false;\n    let original = x;\n    let reversed = 0;\n    while (original > 0) {\n      reversed = reversed * 10 + (original % 10);\n      original = Math.floor(original / 10);\n    }\n    return reversed === x;\n  }\n}",
+    "input": {
+      "x": 121
+    },
+    "expected": true
+  },
+  "11": {
+    "code": "class Solution {\n  maxArea(height) {\n    let left = 0;\n    let right = height.length - 1;\n    let best = 0;\n    while (left < right) {\n      const width = right - left;\n      best = Math.max(best, Math.min(height[left], height[right]) * width);\n      if (height[left] < height[right]) left++;\n      else right--;\n    }\n    return best;\n  }\n}",
+    "input": {
+      "height": [
+        1,
+        8,
+        6,
+        2,
+        5,
+        4,
+        8,
+        3,
+        7
+      ]
+    },
+    "expected": 49,
+    "bruteCode": "class Solution {\n  maxArea(height) {\n    let best = 0;\n    for (let i = 0; i < height.length; i++) {\n      for (let j = i + 1; j < height.length; j++) {\n        best = Math.max(best, Math.min(height[i], height[j]) * (j - i));\n      }\n    }\n    return best;\n  }\n}"
+  },
+  "12": {
+    "code": "class Solution {\n  intToRoman(num) {\n    const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];\n    const symbols = [\"M\", \"CM\", \"D\", \"CD\", \"C\", \"XC\", \"L\", \"XL\", \"X\", \"IX\", \"V\", \"IV\", \"I\"];\n    let result = \"\";\n    for (let i = 0; i < values.length; i++) {\n      while (num >= values[i]) {\n        result += symbols[i];\n        num -= values[i];\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "num": 1994
+    },
+    "expected": "MCMXCIV"
+  },
+  "13": {
+    "code": "class Solution {\n  romanToInt(s) {\n    const values = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };\n    let total = 0;\n    for (let i = 0; i < s.length; i++) {\n      const current = values[s[i]];\n      const next = values[s[i + 1]];\n      if (next > current) total -= current;\n      else total += current;\n    }\n    return total;\n  }\n}",
+    "input": {
+      "s": "MCMXCIV"
+    },
+    "expected": 1994
+  },
+  "14": {
+    "code": "class Solution {\n  longestCommonPrefix(strs) {\n    if (strs.length === 0) return \"\";\n    let prefix = strs[0];\n    for (let i = 1; i < strs.length; i++) {\n      while (strs[i].indexOf(prefix) !== 0) {\n        prefix = prefix.slice(0, prefix.length - 1);\n        if (prefix === \"\") return \"\";\n      }\n    }\n    return prefix;\n  }\n}",
+    "input": {
+      "strs": [
+        "flower",
+        "flow",
+        "flight"
+      ]
+    },
+    "expected": "fl"
+  },
+  "15": {
+    "code": "class Solution {\n  threeSum(nums) {\n    nums.sort((a, b) => a - b);\n    const result = [];\n    for (let i = 0; i < nums.length - 2; i++) {\n      if (i > 0 && nums[i] === nums[i - 1]) continue;\n      let left = i + 1;\n      let right = nums.length - 1;\n      while (left < right) {\n        const sum = nums[i] + nums[left] + nums[right];\n        if (sum === 0) {\n          result.push([nums[i], nums[left], nums[right]]);\n          while (left < right && nums[left] === nums[left + 1]) left++;\n          while (left < right && nums[right] === nums[right - 1]) right--;\n          left++;\n          right--;\n        } else if (sum < 0) {\n          left++;\n        } else {\n          right--;\n        }\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        -1,
+        0,
+        1,
+        2,
+        -1,
+        -4
+      ]
+    },
+    "expected": [
+      [
+        -1,
+        -1,
+        2
+      ],
+      [
+        -1,
+        0,
+        1
+      ]
+    ],
+    "bruteCode": "class Solution {\n  threeSum(nums) {\n    const result = [];\n    nums.sort((a, b) => a - b);\n    for (let i = 0; i < nums.length - 2; i++) {\n      for (let j = i + 1; j < nums.length - 1; j++) {\n        for (let k = j + 1; k < nums.length; k++) {\n          if (nums[i] + nums[j] + nums[k] === 0) {\n            const triple = [nums[i], nums[j], nums[k]];\n            if (!result.some(r => r[0] === triple[0] && r[1] === triple[1] && r[2] === triple[2])) {\n              result.push(triple);\n            }\n          }\n        }\n      }\n    }\n    return result;\n  }\n}"
+  },
+  "17": {
+    "code": "class Solution {\n  letterCombinations(digits) {\n    if (digits === \"\") return [];\n    const map = { \"2\": \"abc\", \"3\": \"def\", \"4\": \"ghi\", \"5\": \"jkl\", \"6\": \"mno\", \"7\": \"pqrs\", \"8\": \"tuv\", \"9\": \"wxyz\" };\n    const result = [];\n    const backtrack = (index, current) => {\n      if (index === digits.length) {\n        result.push(current);\n        return;\n      }\n      for (const letter of map[digits[index]]) {\n        backtrack(index + 1, current + letter);\n      }\n    };\n    backtrack(0, \"\");\n    return result;\n  }\n}",
+    "input": {
+      "digits": "23"
+    },
+    "expected": [
+      "ad",
+      "ae",
+      "af",
+      "bd",
+      "be",
+      "bf",
+      "cd",
+      "ce",
+      "cf"
+    ]
+  },
+  "19": {
+    "code": "class Solution {\n  removeNthFromEnd(head, n) {\n    const dummy = new ListNode(0, head);\n    let slow = dummy;\n    let fast = head;\n    for (let i = 0; i < n; i++) fast = fast.next;\n    while (fast !== null) {\n      slow = slow.next;\n      fast = fast.next;\n    }\n    slow.next = slow.next.next;\n    return dummy.next;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "n": 2
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      5
+    ]
+  },
+  "20": {
+    "code": "class Solution {\n  isValid(s) {\n    const stack = [];\n    const map = { \")\": \"(\", \"]\": \"[\", \"}\": \"{\" };\n    for (const char of s) {\n      if (char === \"(\" || char === \"[\" || char === \"{\") {\n        stack.push(char);\n      } else if (stack.length === 0 || stack.pop() !== map[char]) {\n        return false;\n      }\n    }\n    return stack.length === 0;\n  }\n}",
+    "input": {
+      "s": "()[]{}"
+    },
+    "expected": true
+  },
+  "21": {
+    "code": "class Solution {\n  mergeTwoLists(l1, l2) {\n    const dummy = new ListNode(0);\n    let tail = dummy;\n    while (l1 !== null && l2 !== null) {\n      if (l1.val <= l2.val) {\n        tail.next = l1;\n        l1 = l1.next;\n      } else {\n        tail.next = l2;\n        l2 = l2.next;\n      }\n      tail = tail.next;\n    }\n    tail.next = l1 !== null ? l1 : l2;\n    return dummy.next;\n  }\n}",
+    "input": {
+      "l1": [
+        1,
+        2,
+        4
+      ],
+      "l2": [
+        1,
+        3,
+        4
+      ]
+    },
+    "expected": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4
+    ]
+  },
+  "22": {
+    "code": "class Solution {\n  generateParenthesis(n) {\n    const result = [];\n    const backtrack = (current, open, close) => {\n      if (current.length === n * 2) {\n        result.push(current);\n        return;\n      }\n      if (open < n) backtrack(current + \"(\", open + 1, close);\n      if (close < open) backtrack(current + \")\", open, close + 1);\n    };\n    backtrack(\"\", 0, 0);\n    return result;\n  }\n}",
+    "input": {
+      "n": 3
+    },
+    "expected": [
+      "((()))",
+      "(()())",
+      "(())()",
+      "()(())",
+      "()()()"
+    ]
+  },
+  "23": {
+    "code": "class Solution {\n  mergeKLists(lists) {\n    function toList(arr) {\n      var dummy = new ListNode(0);\n      var tail = dummy;\n      for (var i = 0; i < arr.length; i++) { tail.next = new ListNode(arr[i]); tail = tail.next; }\n      return dummy.next;\n    }\n    function merge(l1, l2) {\n      var dummy = new ListNode(0);\n      var tail = dummy;\n      while (l1 !== null && l2 !== null) {\n        if (l1.val <= l2.val) { tail.next = l1; l1 = l1.next; }\n        else { tail.next = l2; l2 = l2.next; }\n        tail = tail.next;\n      }\n      tail.next = l1 !== null ? l1 : l2;\n      return dummy.next;\n    }\n    var result = null;\n    for (var i = 0; i < lists.length; i++) {\n      var head = toList(lists[i]);\n      result = merge(result, head);\n    }\n    return result;\n  }\n}",
+    "input": {
+      "lists": [
+        [
+          1,
+          4,
+          5
+        ],
+        [
+          1,
+          3,
+          4
+        ],
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    "expected": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      4,
+      5,
+      6
+    ]
+  },
+  "25": {
+    "code": "class Solution {\n  reverseKGroup(head, k) {\n    const dummy = new ListNode(0, head);\n    let groupPrev = dummy;\n\n    while (true) {\n      let kth = groupPrev;\n      for (let i = 0; i < k; i++) {\n        kth = kth.next;\n        if (kth === null) return dummy.next;\n      }\n      let groupNext = kth.next;\n      let prev = groupNext;\n      let curr = groupPrev.next;\n      for (let i = 0; i < k; i++) {\n        const next = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = next;\n      }\n      const tmp = groupPrev.next;\n      groupPrev.next = kth;\n      groupPrev = tmp;\n    }\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "k": 2
+    },
+    "expected": [
+      2,
+      1,
+      4,
+      3,
+      5
+    ]
+  },
+  "26": {
+    "code": "class Solution {\n  removeDuplicates(nums) {\n    if (nums.length === 0) return 0;\n    let k = 1;\n    for (let i = 1; i < nums.length; i++) {\n      if (nums[i] !== nums[k - 1]) {\n        nums[k] = nums[i];\n        k++;\n      }\n    }\n    return k;\n  }\n}",
+    "input": {
+      "nums": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4
+      ]
+    },
+    "expected": 5
+  },
+  "27": {
+    "code": "class Solution {\n  removeElement(nums, val) {\n    let k = 0;\n    for (let i = 0; i < nums.length; i++) {\n      if (nums[i] !== val) {\n        nums[k] = nums[i];\n        k++;\n      }\n    }\n    return k;\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        2,
+        2,
+        3
+      ],
+      "val": 3
+    },
+    "expected": 2
+  },
+  "28": {
+    "code": "class Solution {\n  strStr(haystack, needle) {\n    if (needle === \"\") return 0;\n    return haystack.indexOf(needle);\n  }\n}",
+    "input": {
+      "haystack": "sadbutsad",
+      "needle": "sad"
+    },
+    "expected": 0
+  },
+  "33": {
+    "code": "class Solution {\n  search(nums, target) {\n    let left = 0;\n    let right = nums.length - 1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] === target) return mid;\n      if (nums[left] <= nums[mid]) {\n        if (target >= nums[left] && target < nums[mid]) right = mid - 1;\n        else left = mid + 1;\n      } else {\n        if (target > nums[mid] && target <= nums[right]) left = mid + 1;\n        else right = mid - 1;\n      }\n    }\n    return -1;\n  }\n}",
+    "input": {
+      "nums": [
+        4,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2
+      ],
+      "target": 0
+    },
+    "expected": 4
+  },
+  "34": {
+    "code": "class Solution {\n  searchRange(nums, target) {\n    return [this.first(nums, target), this.last(nums, target)];\n  }\n  first(nums, target) {\n    let left = 0;\n    let right = nums.length - 1;\n    let result = -1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] >= target) {\n        if (nums[mid] === target) result = mid;\n        right = mid - 1;\n      } else {\n        left = mid + 1;\n      }\n    }\n    return result;\n  }\n  last(nums, target) {\n    let left = 0;\n    let right = nums.length - 1;\n    let result = -1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] <= target) {\n        if (nums[mid] === target) result = mid;\n        left = mid + 1;\n      } else {\n        right = mid - 1;\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        5,
+        7,
+        7,
+        8,
+        8,
+        10
+      ],
+      "target": 8
+    },
+    "expected": [
+      3,
+      4
+    ]
+  },
+  "35": {
+    "code": "class Solution {\n  searchInsert(nums, target) {\n    let left = 0;\n    let right = nums.length - 1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] === target) return mid;\n      if (nums[mid] < target) left = mid + 1;\n      else right = mid - 1;\n    }\n    return left;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        3,
+        5,
+        6
+      ],
+      "target": 5
+    },
+    "expected": 2
+  },
+  "36": {
+    "code": "class Solution {\n  isValidSudoku(board) {\n    const rows = new Array(9).fill(0).map(() => new Set());\n    const cols = new Array(9).fill(0).map(() => new Set());\n    const boxes = new Array(9).fill(0).map(() => new Set());\n    for (let r = 0; r < 9; r++) {\n      for (let c = 0; c < 9; c++) {\n        const value = board[r][c];\n        if (value === \".\") continue;\n        const boxIndex = Math.floor(r / 3) * 3 + Math.floor(c / 3);\n        if (rows[r].has(value) || cols[c].has(value) || boxes[boxIndex].has(value)) return false;\n        rows[r].add(value);\n        cols[c].add(value);\n        boxes[boxIndex].add(value);\n      }\n    }\n    return true;\n  }\n}",
+    "input": {
+      "board": [
+        [
+          "5",
+          "3",
+          ".",
+          ".",
+          "7",
+          ".",
+          ".",
+          ".",
+          "."
+        ],
+        [
+          "6",
+          ".",
+          ".",
+          "1",
+          "9",
+          "5",
+          ".",
+          ".",
+          "."
+        ],
+        [
+          ".",
+          "9",
+          "8",
+          ".",
+          ".",
+          ".",
+          ".",
+          "6",
+          "."
+        ],
+        [
+          "8",
+          ".",
+          ".",
+          ".",
+          "6",
+          ".",
+          ".",
+          ".",
+          "3"
+        ],
+        [
+          "4",
+          ".",
+          ".",
+          "8",
+          ".",
+          "3",
+          ".",
+          ".",
+          "1"
+        ],
+        [
+          "7",
+          ".",
+          ".",
+          ".",
+          "2",
+          ".",
+          ".",
+          ".",
+          "6"
+        ],
+        [
+          ".",
+          "6",
+          ".",
+          ".",
+          ".",
+          ".",
+          "2",
+          "8",
+          "."
+        ],
+        [
+          ".",
+          ".",
+          ".",
+          "4",
+          "1",
+          "9",
+          ".",
+          ".",
+          "5"
+        ],
+        [
+          ".",
+          ".",
+          ".",
+          ".",
+          "8",
+          ".",
+          ".",
+          "7",
+          "9"
+        ]
+      ]
+    },
+    "expected": true
+  },
+  "39": {
+    "code": "class Solution {\n  combinationSum(candidates, target) {\n    const result = [];\n    const backtrack = (start, current, sum) => {\n      if (sum === target) {\n        result.push([...current]);\n        return;\n      }\n      if (sum > target) return;\n      for (let i = start; i < candidates.length; i++) {\n        current.push(candidates[i]);\n        backtrack(i, current, sum + candidates[i]);\n        current.pop();\n      }\n    };\n    backtrack(0, [], 0);\n    return result;\n  }\n}",
+    "input": {
+      "candidates": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "target": 7
+    },
+    "expected": [
+      [
+        2,
+        2,
+        3
+      ],
+      [
+        7
+      ]
+    ]
+  },
+  "42": {
+    "code": "class Solution {\n  trap(height) {\n    let left = 0;\n    let right = height.length - 1;\n    let leftMax = 0;\n    let rightMax = 0;\n    let water = 0;\n    while (left < right) {\n      if (height[left] < height[right]) {\n        if (height[left] >= leftMax) leftMax = height[left];\n        else water += leftMax - height[left];\n        left++;\n      } else {\n        if (height[right] >= rightMax) rightMax = height[right];\n        else water += rightMax - height[right];\n        right--;\n      }\n    }\n    return water;\n  }\n}",
+    "input": {
+      "height": [
+        0,
+        1,
+        0,
+        2,
+        1,
+        0,
+        1,
+        3,
+        2,
+        1,
+        2,
+        1
+      ]
+    },
+    "expected": 6,
+    "bruteCode": "class Solution {\n  trap(height) {\n    let total = 0;\n    for (let i = 0; i < height.length; i++) {\n      let leftMax = 0, rightMax = 0;\n      for (let j = 0; j <= i; j++) leftMax = Math.max(leftMax, height[j]);\n      for (let j = i; j < height.length; j++) rightMax = Math.max(rightMax, height[j]);\n      total += Math.min(leftMax, rightMax) - height[i];\n    }\n    return total;\n  }\n}"
+  },
+  "45": {
+    "code": "class Solution {\n  jump(nums) {\n    let jumps = 0;\n    let currentEnd = 0;\n    let farthest = 0;\n    for (let i = 0; i < nums.length - 1; i++) {\n      farthest = Math.max(farthest, i + nums[i]);\n      if (i === currentEnd) {\n        jumps++;\n        currentEnd = farthest;\n      }\n    }\n    return jumps;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        3,
+        1,
+        1,
+        4
+      ]
+    },
+    "expected": 2
+  },
+  "46": {
+    "code": "class Solution {\n  permute(nums) {\n    const result = [];\n    const backtrack = (current, remaining) => {\n      if (remaining.length === 0) {\n        result.push([...current]);\n        return;\n      }\n      for (let i = 0; i < remaining.length; i++) {\n        const next = remaining[i];\n        current.push(next);\n        backtrack(current, remaining.slice(0, i).concat(remaining.slice(i + 1)));\n        current.pop();\n      }\n    };\n    backtrack([], nums);\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        1,
+        3,
+        2
+      ],
+      [
+        2,
+        1,
+        3
+      ],
+      [
+        2,
+        3,
+        1
+      ],
+      [
+        3,
+        1,
+        2
+      ],
+      [
+        3,
+        2,
+        1
+      ]
+    ]
+  },
+  "48": {
+    "code": "class Solution {\n  rotate(matrix) {\n    const n = matrix.length;\n    for (let i = 0; i < n; i++) {\n      for (let j = i + 1; j < n; j++) {\n        const temp = matrix[i][j];\n        matrix[i][j] = matrix[j][i];\n        matrix[j][i] = temp;\n      }\n    }\n    for (const row of matrix) {\n      let i = 0;\n      let j = row.length - 1;\n      while (i < j) {\n        const temp = row[i];\n        row[i] = row[j];\n        row[j] = temp;\n        i++;\n        j--;\n      }\n    }\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6
+        ],
+        [
+          7,
+          8,
+          9
+        ]
+      ]
+    },
+    "expected": [
+      [
+        7,
+        4,
+        1
+      ],
+      [
+        8,
+        5,
+        2
+      ],
+      [
+        9,
+        6,
+        3
+      ]
+    ]
+  },
+  "49": {
+    "code": "class Solution {\n  groupAnagrams(strs) {\n    const groups = new Map();\n    for (const str of strs) {\n      const key = str.split(\"\").sort().join(\"\");\n      if (!groups.has(key)) groups.set(key, []);\n      groups.get(key).push(str);\n    }\n    return Array.from(groups.values());\n  }\n}",
+    "input": {
+      "strs": [
+        "eat",
+        "tea",
+        "tan",
+        "ate",
+        "nat",
+        "bat"
+      ]
+    },
+    "expected": [
+      [
+        "eat",
+        "tea",
+        "ate"
+      ],
+      [
+        "tan",
+        "nat"
+      ],
+      [
+        "bat"
+      ]
+    ]
+  },
+  "50": {
+    "code": "class Solution {\n  myPow(x, n) {\n    if (n === 0) return 1;\n    if (n < 0) return 1 / this.myPow(x, -n);\n    const half = this.myPow(x, Math.floor(n / 2));\n    return n % 2 === 0 ? half * half : half * half * x;\n  }\n}",
+    "input": {
+      "x": 2,
+      "n": 10
+    },
+    "expected": 1024
+  },
+  "52": {
+    "code": "class Solution {\n  totalNQueens(n) {\n    let count = 0;\n    const board = new Array(n).fill(-1);\n\n    const isValid = (row, col) => {\n      for (let r = 0; r < row; r++) {\n        const c = board[r];\n        if (c === col || Math.abs(r - row) === Math.abs(c - col)) return false;\n      }\n      return true;\n    };\n\n    const backtrack = (row) => {\n      if (row === n) {\n        count++;\n        return;\n      }\n      for (let col = 0; col < n; col++) {\n        if (isValid(row, col)) {\n          board[row] = col;\n          backtrack(row + 1);\n          board[row] = -1;\n        }\n      }\n    };\n\n    backtrack(0);\n    return count;\n  }\n}",
+    "input": {
+      "n": 4
+    },
+    "expected": 2
+  },
+  "53": {
+    "code": "class Solution {\n  maxSubArray(nums) {\n    let best = nums[0];\n    let current = 0;\n    for (const num of nums) {\n      current = Math.max(num, current + num);\n      best = Math.max(best, current);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "nums": [
+        -2,
+        1,
+        -3,
+        4,
+        -1,
+        2,
+        1,
+        -5,
+        4
+      ]
+    },
+    "expected": 6
+  },
+  "54": {
+    "code": "class Solution {\n  spiralOrder(matrix) {\n    const result = [];\n    let top = 0;\n    let bottom = matrix.length - 1;\n    let left = 0;\n    let right = matrix[0].length - 1;\n    while (top <= bottom && left <= right) {\n      for (let c = left; c <= right; c++) result.push(matrix[top][c]);\n      top++;\n      for (let r = top; r <= bottom; r++) result.push(matrix[r][right]);\n      right--;\n      if (top <= bottom) {\n        for (let c = right; c >= left; c--) result.push(matrix[bottom][c]);\n        bottom--;\n      }\n      if (left <= right) {\n        for (let r = bottom; r >= top; r--) result.push(matrix[r][left]);\n        left++;\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6
+        ],
+        [
+          7,
+          8,
+          9
+        ]
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      6,
+      9,
+      8,
+      7,
+      4,
+      5
+    ]
+  },
+  "55": {
+    "code": "class Solution {\n  canJump(nums) {\n    let reach = 0;\n    for (let i = 0; i < nums.length; i++) {\n      if (i > reach) return false;\n      reach = Math.max(reach, i + nums[i]);\n    }\n    return true;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        3,
+        1,
+        1,
+        4
+      ]
+    },
+    "expected": true
+  },
+  "56": {
+    "code": "class Solution {\n  merge(intervals) {\n    intervals.sort((a, b) => a[0] - b[0]);\n    const result = [];\n    for (const interval of intervals) {\n      const last = result[result.length - 1];\n      if (last && interval[0] <= last[1]) {\n        last[1] = Math.max(last[1], interval[1]);\n      } else {\n        result.push([interval[0], interval[1]]);\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    "expected": [
+      [
+        1,
+        6
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        15,
+        18
+      ]
+    ]
+  },
+  "57": {
+    "code": "class Solution {\n  insert(intervals, newInterval) {\n    const result = [];\n    let i = 0;\n    while (i < intervals.length && intervals[i][1] < newInterval[0]) {\n      result.push(intervals[i]);\n      i++;\n    }\n    while (i < intervals.length && intervals[i][0] <= newInterval[1]) {\n      newInterval[0] = Math.min(newInterval[0], intervals[i][0]);\n      newInterval[1] = Math.max(newInterval[1], intervals[i][1]);\n      i++;\n    }\n    result.push(newInterval);\n    while (i < intervals.length) {\n      result.push(intervals[i]);\n      i++;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "intervals": [
+        [
+          1,
+          3
+        ],
+        [
+          6,
+          9
+        ]
+      ],
+      "newInterval": [
+        2,
+        5
+      ]
+    },
+    "expected": [
+      [
+        1,
+        5
+      ],
+      [
+        6,
+        9
+      ]
+    ]
+  },
+  "58": {
+    "code": "class Solution {\n  lengthOfLastWord(s) {\n    let length = 0;\n    for (let i = s.length - 1; i >= 0; i--) {\n      if (s[i] === \" \") {\n        if (length > 0) return length;\n      } else {\n        length++;\n      }\n    }\n    return length;\n  }\n}",
+    "input": {
+      "s": "   fly me   to   the moon  "
+    },
+    "expected": 4
+  },
+  "61": {
+    "code": "class Solution {\n  rotateRight(head, k) {\n    if (head === null || head.next === null) return head;\n    let length = 1;\n    let tail = head;\n    while (tail.next !== null) {\n      tail = tail.next;\n      length++;\n    }\n    k = k % length;\n    if (k === 0) return head;\n    tail.next = head;\n    let newTail = head;\n    for (let i = 0; i < length - k - 1; i++) newTail = newTail.next;\n    const newHead = newTail.next;\n    newTail.next = null;\n    return newHead;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "k": 2
+    },
+    "expected": [
+      4,
+      5,
+      1,
+      2,
+      3
+    ]
+  },
+  "63": {
+    "code": "class Solution {\n  uniquePathsWithObstacles(obstacleGrid) {\n    const rows = obstacleGrid.length;\n    const cols = obstacleGrid[0].length;\n    const dp = new Array(rows).fill(0).map(() => new Array(cols).fill(0));\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (obstacleGrid[r][c] === 1) {\n          dp[r][c] = 0;\n        } else if (r === 0 && c === 0) {\n          dp[r][c] = 1;\n        } else {\n          dp[r][c] = (r > 0 ? dp[r - 1][c] : 0) + (c > 0 ? dp[r][c - 1] : 0);\n        }\n      }\n    }\n    return dp[rows - 1][cols - 1];\n  }\n}",
+    "input": {
+      "obstacleGrid": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "expected": 2
+  },
+  "64": {
+    "code": "class Solution {\n  minPathSum(grid) {\n    const rows = grid.length;\n    const cols = grid[0].length;\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (r === 0 && c === 0) continue;\n        if (r === 0) grid[r][c] += grid[r][c - 1];\n        else if (c === 0) grid[r][c] += grid[r - 1][c];\n        else grid[r][c] += Math.min(grid[r - 1][c], grid[r][c - 1]);\n      }\n    }\n    return grid[rows - 1][cols - 1];\n  }\n}",
+    "input": {
+      "grid": [
+        [
+          1,
+          3,
+          1
+        ],
+        [
+          1,
+          5,
+          1
+        ],
+        [
+          4,
+          2,
+          1
+        ]
+      ]
+    },
+    "expected": 7
+  },
+  "66": {
+    "code": "class Solution {\n  plusOne(digits) {\n    for (let i = digits.length - 1; i >= 0; i--) {\n      if (digits[i] < 9) {\n        digits[i]++;\n        return digits;\n      }\n      digits[i] = 0;\n    }\n    return [1, ...digits];\n  }\n}",
+    "input": {
+      "digits": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      4
+    ]
+  },
+  "67": {
+    "code": "class Solution {\n  addBinary(a, b) {\n    let i = a.length - 1;\n    let j = b.length - 1;\n    let carry = 0;\n    let result = \"\";\n    while (i >= 0 || j >= 0 || carry > 0) {\n      const sum = (i >= 0 ? Number(a[i]) : 0) + (j >= 0 ? Number(b[j]) : 0) + carry;\n      result = (sum % 2) + result;\n      carry = Math.floor(sum / 2);\n      i--;\n      j--;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "a": "11",
+      "b": "1"
+    },
+    "expected": "100"
+  },
+  "69": {
+    "code": "class Solution {\n  mySqrt(x) {\n    let left = 0;\n    let right = x;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      const square = mid * mid;\n      if (square === x) return mid;\n      if (square < x) left = mid + 1;\n      else right = mid - 1;\n    }\n    return right;\n  }\n}",
+    "input": {
+      "x": 8
+    },
+    "expected": 2
+  },
+  "70": {
+    "code": "class Solution {\n  climbStairs(n) {\n    if (n <= 2) return n;\n    let prev = 1;\n    let current = 2;\n    for (let i = 3; i <= n; i++) {\n      const next = prev + current;\n      prev = current;\n      current = next;\n    }\n    return current;\n  }\n}",
+    "input": {
+      "n": 5
+    },
+    "expected": 8
+  },
+  "71": {
+    "code": "class Solution {\n  simplifyPath(path) {\n    const stack = [];\n    for (const part of path.split(\"/\")) {\n      if (part === \"\" || part === \".\") continue;\n      if (part === \"..\") {\n        if (stack.length > 0) stack.pop();\n      } else {\n        stack.push(part);\n      }\n    }\n    return \"/\" + stack.join(\"/\");\n  }\n}",
+    "input": {
+      "path": "/home//foo/"
+    },
+    "expected": "/home/foo"
+  },
+  "72": {
+    "code": "class Solution {\n  minDistance(word1, word2) {\n    const rows = word1.length;\n    const cols = word2.length;\n    const dp = new Array(rows + 1).fill(0).map(() => new Array(cols + 1).fill(0));\n    for (let c = 0; c <= cols; c++) dp[0][c] = c;\n    for (let r = 0; r <= rows; r++) dp[r][0] = r;\n    for (let r = 1; r <= rows; r++) {\n      for (let c = 1; c <= cols; c++) {\n        if (word1[r - 1] === word2[c - 1]) dp[r][c] = dp[r - 1][c - 1];\n        else dp[r][c] = 1 + Math.min(dp[r - 1][c], dp[r][c - 1], dp[r - 1][c - 1]);\n      }\n    }\n    return dp[rows][cols];\n  }\n}",
+    "input": {
+      "word1": "horse",
+      "word2": "ros"
+    },
+    "expected": 3
+  },
+  "73": {
+    "code": "class Solution {\n  setZeroes(matrix) {\n    const rows = matrix.length;\n    const cols = matrix[0].length;\n    const zeroRows = new Array(rows).fill(false);\n    const zeroCols = new Array(cols).fill(false);\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (matrix[r][c] === 0) {\n          zeroRows[r] = true;\n          zeroCols[c] = true;\n        }\n      }\n    }\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (zeroRows[r] || zeroCols[c]) matrix[r][c] = 0;\n      }\n    }\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    "expected": [
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        1
+      ]
+    ]
+  },
+  "74": {
+    "code": "class Solution {\n  searchMatrix(matrix, target) {\n    const rows = matrix.length;\n    const cols = matrix[0].length;\n    let left = 0;\n    let right = rows * cols - 1;\n    while (left <= right) {\n      const mid = Math.floor((left + right) / 2);\n      const value = matrix[Math.floor(mid / cols)][mid % cols];\n      if (value === target) return true;\n      if (value < target) left = mid + 1;\n      else right = mid - 1;\n    }\n    return false;\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          1,
+          3,
+          5,
+          7
+        ],
+        [
+          10,
+          11,
+          16,
+          20
+        ],
+        [
+          23,
+          30,
+          34,
+          60
+        ]
+      ],
+      "target": 3
+    },
+    "expected": true
+  },
+  "76": {
+    "code": "class Solution {\n  minWindow(s, t) {\n    const need = {};\n    for (const char of t) need[char] = (need[char] || 0) + 1;\n    let missing = t.length;\n    let left = 0;\n    let best = \"\";\n    for (let right = 0; right < s.length; right++) {\n      const char = s[right];\n      if (need[char] !== undefined) {\n        if (need[char] > 0) missing--;\n        need[char]--;\n      }\n      while (missing === 0) {\n        const windowLength = right - left + 1;\n        if (best === \"\" || windowLength < best.length) {\n          best = s.slice(left, right + 1);\n        }\n        const leftChar = s[left];\n        if (need[leftChar] !== undefined) {\n          need[leftChar]++;\n          if (need[leftChar] > 0) missing++;\n        }\n        left++;\n      }\n    }\n    return best;\n  }\n}",
+    "input": {
+      "s": "ADOBECODEBANC",
+      "t": "ABC"
+    },
+    "expected": "BANC",
+    "bruteCode": "class Solution {\n  minWindow(s, t) {\n    let best = \"\";\n    for (let i = 0; i < s.length; i++) {\n      for (let j = i; j < s.length; j++) {\n        const sub = s.slice(i, j + 1);\n        const need = [...t];\n        for (const ch of sub) {\n          const idx = need.indexOf(ch);\n          if (idx !== -1) need.splice(idx, 1);\n        }\n        if (need.length === 0 && (best === \"\" || sub.length < best.length)) best = sub;\n      }\n    }\n    return best;\n  }\n}"
+  },
+  "77": {
+    "code": "class Solution {\n  combine(n, k) {\n    const result = [];\n    const backtrack = (start, current) => {\n      if (current.length === k) {\n        result.push([...current]);\n        return;\n      }\n      for (let i = start; i <= n; i++) {\n        current.push(i);\n        backtrack(i + 1, current);\n        current.pop();\n      }\n    };\n    backtrack(1, []);\n    return result;\n  }\n}",
+    "input": {
+      "n": 4,
+      "k": 2
+    },
+    "expected": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ]
+    ]
+  },
+  "79": {
+    "code": "class Solution {\n  exist(board, word) {\n    for (let r = 0; r < board.length; r++) {\n      for (let c = 0; c < board[0].length; c++) {\n        if (this.search(board, word, r, c, 0)) return true;\n      }\n    }\n    return false;\n  }\n  search(board, word, r, c, index) {\n    if (index === word.length) return true;\n    if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) return false;\n    if (board[r][c] !== word[index]) return false;\n    const temp = board[r][c];\n    board[r][c] = \"#\";\n    const found =\n      this.search(board, word, r + 1, c, index + 1) ||\n      this.search(board, word, r - 1, c, index + 1) ||\n      this.search(board, word, r, c + 1, index + 1) ||\n      this.search(board, word, r, c - 1, index + 1);\n    board[r][c] = temp;\n    return found;\n  }\n}",
+    "input": {
+      "board": [
+        [
+          "A",
+          "B",
+          "C",
+          "E"
+        ],
+        [
+          "S",
+          "F",
+          "C",
+          "S"
+        ],
+        [
+          "A",
+          "D",
+          "E",
+          "E"
+        ]
+      ],
+      "word": "ABCCED"
+    },
+    "expected": true
+  },
+  "80": {
+    "code": "class Solution {\n  removeDuplicates(nums) {\n    let k = 0;\n    for (const num of nums) {\n      if (k < 2 || num > nums[k - 2]) {\n        nums[k] = num;\n        k++;\n      }\n    }\n    return k;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        3
+      ]
+    },
+    "expected": 5
+  },
+  "82": {
+    "code": "class Solution {\n  deleteDuplicates(head) {\n    const dummy = new ListNode(0, head);\n    let prev = dummy;\n    while (head !== null) {\n      if (head.next !== null && head.val === head.next.val) {\n        while (head.next !== null && head.val === head.next.val) head = head.next;\n        prev.next = head.next;\n      } else {\n        prev = prev.next;\n      }\n      head = head.next;\n    }\n    return dummy.next;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      5
+    ]
+  },
+  "86": {
+    "code": "class Solution {\n  partition(head, x) {\n    const beforeHead = new ListNode(0);\n    const afterHead = new ListNode(0);\n    let before = beforeHead;\n    let after = afterHead;\n    while (head !== null) {\n      if (head.val < x) {\n        before.next = head;\n        before = before.next;\n      } else {\n        after.next = head;\n        after = after.next;\n      }\n      head = head.next;\n    }\n    after.next = null;\n    before.next = afterHead.next;\n    return beforeHead.next;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        4,
+        3,
+        2,
+        5,
+        2
+      ],
+      "x": 3
+    },
+    "expected": [
+      1,
+      2,
+      2,
+      4,
+      3,
+      5
+    ]
+  },
+  "88": {
+    "code": "class Solution {\n  merge(nums1, m, nums2, n) {\n    let i = m - 1;\n    let j = n - 1;\n    let k = m + n - 1;\n    while (j >= 0) {\n      if (i >= 0 && nums1[i] > nums2[j]) {\n        nums1[k] = nums1[i];\n        i--;\n      } else {\n        nums1[k] = nums2[j];\n        j--;\n      }\n      k--;\n    }\n  }\n}",
+    "input": {
+      "nums1": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0
+      ],
+      "m": 3,
+      "nums2": [
+        2,
+        5,
+        6
+      ],
+      "n": 3
+    },
+    "expected": [
+      1,
+      2,
+      2,
+      3,
+      5,
+      6
+    ]
+  },
+  "92": {
+    "code": "class Solution {\n  reverseBetween(head, left, right) {\n    const dummy = new ListNode(0, head);\n    let prev = dummy;\n    for (let i = 0; i < left - 1; i++) prev = prev.next;\n    let curr = prev.next;\n    for (let i = 0; i < right - left; i++) {\n      const next = curr.next;\n      curr.next = next.next;\n      next.next = prev.next;\n      prev.next = next;\n    }\n    return dummy.next;\n  }\n}",
+    "input": {
+      "head": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "left": 2,
+      "right": 4
+    },
+    "expected": [
+      1,
+      4,
+      3,
+      2,
+      5
+    ]
+  },
+  "97": {
+    "code": "class Solution {\n  isInterleave(s1, s2, s3) {\n    if (s1.length + s2.length !== s3.length) return false;\n    const dp = Array.from({ length: s1.length + 1 }, () => new Array(s2.length + 1).fill(false));\n    dp[0][0] = true;\n    for (let i = 1; i <= s1.length; i++) dp[i][0] = dp[i - 1][0] && s1[i - 1] === s3[i - 1];\n    for (let j = 1; j <= s2.length; j++) dp[0][j] = dp[0][j - 1] && s2[j - 1] === s3[j - 1];\n    for (let i = 1; i <= s1.length; i++) {\n      for (let j = 1; j <= s2.length; j++) {\n        dp[i][j] = (dp[i - 1][j] && s1[i - 1] === s3[i + j - 1]) ||\n                   (dp[i][j - 1] && s2[j - 1] === s3[i + j - 1]);\n      }\n    }\n    return dp[s1.length][s2.length];\n  }\n}",
+    "input": {
+      "s1": "aabcc",
+      "s2": "dbbca",
+      "s3": "aadbbcbcac"
+    },
+    "expected": true
+  },
+  "98": {
+    "code": "class Solution {\n  isValidBST(root) {\n    return this.check(root, -Infinity, Infinity);\n  }\n  check(node, low, high) {\n    if (node === null) return true;\n    if (node.val <= low || node.val >= high) return false;\n    return this.check(node.left, low, node.val) && this.check(node.right, node.val, high);\n  }\n}",
+    "input": {
+      "root": [
+        2,
+        1,
+        3
+      ]
+    },
+    "expected": true
+  },
+  "100": {
+    "code": "class Solution {\n  isSameTree(p, q) {\n    if (p === null && q === null) return true;\n    if (p === null || q === null) return false;\n    if (p.val !== q.val) return false;\n    return this.isSameTree(p.left, q.left) && this.isSameTree(p.right, q.right);\n  }\n}",
+    "input": {
+      "p": [
+        1,
+        2,
+        3
+      ],
+      "q": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": true
+  },
+  "101": {
+    "code": "class Solution {\n  isSymmetric(root) {\n    return this.isMirror(root, root);\n  }\n  isMirror(left, right) {\n    if (left === null && right === null) return true;\n    if (left === null || right === null) return false;\n    return left.val === right.val && this.isMirror(left.left, right.right) && this.isMirror(left.right, right.left);\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        2,
+        3,
+        4,
+        4,
+        3
+      ]
+    },
+    "expected": true
+  },
+  "102": {
+    "code": "class Solution {\n  levelOrder(root) {\n    if (root === null) return [];\n    const result = [];\n    let queue = [root];\n    while (queue.length > 0) {\n      const level = [];\n      const next = [];\n      for (const node of queue) {\n        level.push(node.val);\n        if (node.left !== null) next.push(node.left);\n        if (node.right !== null) next.push(node.right);\n      }\n      result.push(level);\n      queue = next;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "expected": [
+      [
+        3
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        15,
+        7
+      ]
+    ]
+  },
+  "103": {
+    "code": "class Solution {\n  zigzagLevelOrder(root) {\n    if (root === null) return [];\n    const result = [];\n    let queue = [root];\n    let leftToRight = true;\n    while (queue.length > 0) {\n      const level = [];\n      const next = [];\n      for (const node of queue) {\n        level.push(node.val);\n        if (node.left !== null) next.push(node.left);\n        if (node.right !== null) next.push(node.right);\n      }\n      if (!leftToRight) level.reverse();\n      result.push(level);\n      leftToRight = !leftToRight;\n      queue = next;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "expected": [
+      [
+        3
+      ],
+      [
+        20,
+        9
+      ],
+      [
+        15,
+        7
+      ]
+    ]
+  },
+  "104": {
+    "code": "class Solution {\n  maxDepth(root) {\n    if (root === null) return 0;\n    return 1 + Math.max(this.maxDepth(root.left), this.maxDepth(root.right));\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "expected": 3
+  },
+  "105": {
+    "code": "class Solution {\n  buildTree(preorder, inorder) {\n    if (preorder.length === 0) return null;\n    const rootVal = preorder[0];\n    const root = new TreeNode(rootVal);\n    const mid = inorder.indexOf(rootVal);\n    root.left = this.buildTree(preorder.slice(1, mid + 1), inorder.slice(0, mid));\n    root.right = this.buildTree(preorder.slice(mid + 1), inorder.slice(mid + 1));\n    return root;\n  }\n}",
+    "input": {
+      "preorder": [
+        3,
+        9,
+        20,
+        15,
+        7
+      ],
+      "inorder": [
+        9,
+        3,
+        15,
+        20,
+        7
+      ]
+    },
+    "expected": [
+      3,
+      9,
+      20,
+      null,
+      null,
+      15,
+      7
+    ]
+  },
+  "106": {
+    "code": "class Solution {\n  buildTree(inorder, postorder) {\n    if (postorder.length === 0) return null;\n    const rootVal = postorder[postorder.length - 1];\n    const root = new TreeNode(rootVal);\n    const mid = inorder.indexOf(rootVal);\n    root.left = this.buildTree(inorder.slice(0, mid), postorder.slice(0, mid));\n    root.right = this.buildTree(inorder.slice(mid + 1), postorder.slice(mid, postorder.length - 1));\n    return root;\n  }\n}",
+    "input": {
+      "inorder": [
+        9,
+        3,
+        15,
+        20,
+        7
+      ],
+      "postorder": [
+        9,
+        15,
+        7,
+        20,
+        3
+      ]
+    },
+    "expected": [
+      3,
+      9,
+      20,
+      null,
+      null,
+      15,
+      7
+    ]
+  },
+  "108": {
+    "code": "class Solution {\n  sortedArrayToBST(nums) {\n    if (nums.length === 0) return null;\n    const mid = Math.floor(nums.length / 2);\n    const root = new TreeNode(nums[mid]);\n    root.left = this.sortedArrayToBST(nums.slice(0, mid));\n    root.right = this.sortedArrayToBST(nums.slice(mid + 1));\n    return root;\n  }\n}",
+    "input": {
+      "nums": [
+        -10,
+        -3,
+        0,
+        5,
+        9
+      ]
+    },
+    "expected": [
+      0,
+      -3,
+      9,
+      -10,
+      null,
+      5
+    ]
+  },
+  "112": {
+    "code": "class Solution {\n  hasPathSum(root, targetSum) {\n    if (root === null) return false;\n    if (root.left === null && root.right === null) return root.val === targetSum;\n    return this.hasPathSum(root.left, targetSum - root.val) || this.hasPathSum(root.right, targetSum - root.val);\n  }\n}",
+    "input": {
+      "root": [
+        5,
+        4,
+        8,
+        11,
+        null,
+        13,
+        4,
+        7,
+        2,
+        null,
+        null,
+        null,
+        1
+      ],
+      "targetSum": 22
+    },
+    "expected": true
+  },
+  "114": {
+    "code": "class Solution {\n  flatten(root) {\n    let current = root;\n    while (current !== null) {\n      if (current.left !== null) {\n        let predecessor = current.left;\n        while (predecessor.right !== null) predecessor = predecessor.right;\n        predecessor.right = current.right;\n        current.right = current.left;\n        current.left = null;\n      }\n      current = current.right;\n    }\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        5,
+        3,
+        4,
+        null,
+        6
+      ]
+    },
+    "expected": [
+      1,
+      null,
+      2,
+      null,
+      3,
+      null,
+      4,
+      null,
+      5,
+      null,
+      6
+    ]
+  },
+  "117": {
+    "code": "class Solution {\n  connect(root) {\n    if (root === null) return null;\n    let level = [root];\n    while (level.length > 0) {\n      const next = [];\n      for (let i = 0; i < level.length; i++) {\n        if (i < level.length - 1) level[i].next = level[i + 1];\n        if (level[i].left) next.push(level[i].left);\n        if (level[i].right) next.push(level[i].right);\n      }\n      level = next;\n    }\n    return root;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        null,
+        7
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      null,
+      7
+    ]
+  },
+  "120": {
+    "code": "class Solution {\n  minimumTotal(triangle) {\n    const dp = triangle[triangle.length - 1].slice();\n    for (let row = triangle.length - 2; row >= 0; row--) {\n      for (let col = 0; col < triangle[row].length; col++) {\n        dp[col] = triangle[row][col] + Math.min(dp[col], dp[col + 1]);\n      }\n    }\n    return dp[0];\n  }\n}",
+    "input": {
+      "triangle": [
+        [
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          6,
+          5,
+          7
+        ],
+        [
+          4,
+          1,
+          8,
+          3
+        ]
+      ]
+    },
+    "expected": 11
+  },
+  "121": {
+    "code": "class Solution {\n  maxProfit(prices) {\n    let minPrice = Infinity;\n    let best = 0;\n    for (const price of prices) {\n      minPrice = Math.min(minPrice, price);\n      best = Math.max(best, price - minPrice);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "prices": [
+        7,
+        1,
+        5,
+        3,
+        6,
+        4
+      ]
+    },
+    "expected": 5
+  },
+  "122": {
+    "code": "class Solution {\n  maxProfit(prices) {\n    let profit = 0;\n    for (let i = 1; i < prices.length; i++) {\n      if (prices[i] > prices[i - 1]) profit += prices[i] - prices[i - 1];\n    }\n    return profit;\n  }\n}",
+    "input": {
+      "prices": [
+        7,
+        1,
+        5,
+        3,
+        6,
+        4
+      ]
+    },
+    "expected": 7
+  },
+  "124": {
+    "code": "class Solution {\n  maxPathSum(root) {\n    let best = -Infinity;\n    const dfs = (node) => {\n      if (node === null) return 0;\n      const left = Math.max(dfs(node.left), 0);\n      const right = Math.max(dfs(node.right), 0);\n      best = Math.max(best, node.val + left + right);\n      return node.val + Math.max(left, right);\n    };\n    dfs(root);\n    return best;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": 6
+  },
+  "125": {
+    "code": "class Solution {\n  isPalindrome(s) {\n    let left = 0;\n    let right = s.length - 1;\n    while (left < right) {\n      while (left < right && !this.isAlnum(s[left])) left++;\n      while (left < right && !this.isAlnum(s[right])) right--;\n      if (s[left].toLowerCase() !== s[right].toLowerCase()) return false;\n      left++;\n      right--;\n    }\n    return true;\n  }\n  isAlnum(char) {\n    return /[a-zA-Z0-9]/.test(char);\n  }\n}",
+    "input": {
+      "s": "A man, a plan, a canal: Panama"
+    },
+    "expected": true
+  },
+  "127": {
+    "code": "class Solution {\n  ladderLength(beginWord, endWord, wordList) {\n    const wordSet = new Set(wordList);\n    if (!wordSet.has(endWord)) return 0;\n    let queue = [beginWord];\n    let visited = new Set([beginWord]);\n    let steps = 1;\n    while (queue.length > 0) {\n      const next = [];\n      for (const word of queue) {\n        for (let i = 0; i < word.length; i++) {\n          for (let c = 97; c <= 122; c++) {\n            const ch = String.fromCharCode(c);\n            if (ch === word[i]) continue;\n            const newWord = word.slice(0, i) + ch + word.slice(i + 1);\n            if (newWord === endWord) return steps + 1;\n            if (wordSet.has(newWord) && !visited.has(newWord)) {\n              visited.add(newWord);\n              next.push(newWord);\n            }\n          }\n        }\n      }\n      queue = next;\n      steps++;\n    }\n    return 0;\n  }\n}",
+    "input": {
+      "beginWord": "hit",
+      "endWord": "cog",
+      "wordList": [
+        "hot",
+        "dot",
+        "dog",
+        "lot",
+        "log",
+        "cog"
+      ]
+    },
+    "expected": 5
+  },
+  "128": {
+    "code": "class Solution {\n  longestConsecutive(nums) {\n    const set = new Set(nums);\n    let best = 0;\n    for (const num of set) {\n      if (set.has(num - 1)) continue;\n      let length = 1;\n      let current = num;\n      while (set.has(current + 1)) {\n        current++;\n        length++;\n      }\n      best = Math.max(best, length);\n    }\n    return best;\n  }\n}",
+    "input": {
+      "nums": [
+        100,
+        4,
+        200,
+        1,
+        3,
+        2
+      ]
+    },
+    "expected": 4,
+    "bruteCode": "class Solution {\n  longestConsecutive(nums) {\n    if (nums.length === 0) return 0;\n    const sorted = [...new Set(nums)].sort((a, b) => a - b);\n    let best = 1, count = 1;\n    for (let i = 1; i < sorted.length; i++) {\n      if (sorted[i] === sorted[i - 1] + 1) { count++; best = Math.max(best, count); }\n      else count = 1;\n    }\n    return best;\n  }\n}"
+  },
+  "129": {
+    "code": "class Solution {\n  sumNumbers(root) {\n    return this.dfs(root, 0);\n  }\n  dfs(node, current) {\n    if (node === null) return 0;\n    current = current * 10 + node.val;\n    if (node.left === null && node.right === null) return current;\n    return this.dfs(node.left, current) + this.dfs(node.right, current);\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3
+      ]
+    },
+    "expected": 25
+  },
+  "130": {
+    "code": "class Solution {\n  solve(board) {\n    const rows = board.length;\n    const cols = board[0].length;\n    const dfs = (r, c) => {\n      if (r < 0 || r >= rows || c < 0 || c >= cols || board[r][c] !== \"O\") return;\n      board[r][c] = \"S\";\n      dfs(r + 1, c);\n      dfs(r - 1, c);\n      dfs(r, c + 1);\n      dfs(r, c - 1);\n    };\n    for (let r = 0; r < rows; r++) {\n      dfs(r, 0);\n      dfs(r, cols - 1);\n    }\n    for (let c = 0; c < cols; c++) {\n      dfs(0, c);\n      dfs(rows - 1, c);\n    }\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (board[r][c] === \"S\") board[r][c] = \"O\";\n        else if (board[r][c] === \"O\") board[r][c] = \"X\";\n      }\n    }\n  }\n}",
+    "input": {
+      "board": [
+        [
+          "X",
+          "X",
+          "X",
+          "X"
+        ],
+        [
+          "X",
+          "O",
+          "O",
+          "X"
+        ],
+        [
+          "X",
+          "X",
+          "O",
+          "X"
+        ],
+        [
+          "X",
+          "O",
+          "X",
+          "X"
+        ]
+      ]
+    },
+    "expected": [
+      [
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "X",
+        "O",
+        "X",
+        "X"
+      ]
+    ]
+  },
+  "133": {
+    "code": "class Node {\n  constructor(val, neighbors) {\n    this.val = val;\n    this.neighbors = neighbors || [];\n  }\n}\n\nclass Solution {\n  cloneGraph(node) {\n    if (node === null) return null;\n    const visited = new Map();\n    const clone = (n) => {\n      if (visited.has(n.val)) return visited.get(n.val);\n      const copy = new Node(n.val);\n      visited.set(n.val, copy);\n      for (const neighbor of n.neighbors) {\n        copy.neighbors.push(clone(neighbor));\n      }\n      return copy;\n    };\n    return clone(node);\n  }\n}",
+    "input": {
+      "node": [
+        [
+          2,
+          4
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    "expected": [
+      [
+        2,
+        4
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  "134": {
+    "code": "class Solution {\n  canCompleteCircuit(gas, cost) {\n    let total = 0;\n    let current = 0;\n    let start = 0;\n    for (let i = 0; i < gas.length; i++) {\n      total += gas[i] - cost[i];\n      current += gas[i] - cost[i];\n      if (current < 0) {\n        start = i + 1;\n        current = 0;\n      }\n    }\n    return total < 0 ? -1 : start;\n  }\n}",
+    "input": {
+      "gas": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "cost": [
+        3,
+        4,
+        5,
+        1,
+        2
+      ]
+    },
+    "expected": 3
+  },
+  "136": {
+    "code": "class Solution {\n  singleNumber(nums) {\n    let result = 0;\n    for (const num of nums) result ^= num;\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        4,
+        1,
+        2,
+        1,
+        2
+      ]
+    },
+    "expected": 4
+  },
+  "137": {
+    "code": "class Solution {\n  singleNumber(nums) {\n    let ones = 0;\n    let twos = 0;\n    for (const num of nums) {\n      ones = (ones ^ num) & ~twos;\n      twos = (twos ^ num) & ~ones;\n    }\n    return ones;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        2,
+        3,
+        2
+      ]
+    },
+    "expected": 3
+  },
+  "139": {
+    "code": "class Solution {\n  wordBreak(s, wordDict) {\n    const dp = new Array(s.length + 1).fill(false);\n    dp[0] = true;\n    for (let i = 1; i <= s.length; i++) {\n      for (const word of wordDict) {\n        if (i >= word.length && dp[i - word.length] && s.slice(i - word.length, i) === word) {\n          dp[i] = true;\n          break;\n        }\n      }\n    }\n    return dp[s.length];\n  }\n}",
+    "input": {
+      "s": "leetcode",
+      "wordDict": [
+        "leet",
+        "code"
+      ]
+    },
+    "expected": true
+  },
+  "141": {
+    "code": "class Solution {\n  hasCycle(head, pos) {\n    if (head === null) return false;\n    var nodes = [];\n    var curr = head;\n    while (curr !== null) { nodes.push(curr); curr = curr.next; }\n    if (pos >= 0 && pos < nodes.length) nodes[nodes.length - 1].next = nodes[pos];\n    var slow = head;\n    var fast = head;\n    var found = false;\n    while (fast !== null && fast.next !== null) {\n      slow = slow.next;\n      fast = fast.next.next;\n      if (slow === fast) { found = true; break; }\n    }\n    return found;\n  }\n}",
+    "input": {
+      "head": [
+        3,
+        2,
+        0,
+        -4
+      ],
+      "pos": 1
+    },
+    "expected": true
+  },
+  "148": {
+    "code": "class Solution {\n  sortList(head) {\n    if (head === null || head.next === null) return head;\n    let slow = head;\n    let fast = head.next;\n    while (fast !== null && fast.next !== null) {\n      slow = slow.next;\n      fast = fast.next.next;\n    }\n    const mid = slow.next;\n    slow.next = null;\n    const left = this.sortList(head);\n    const right = this.sortList(mid);\n    return this.merge(left, right);\n  }\n\n  merge(l1, l2) {\n    const dummy = new ListNode(0);\n    let tail = dummy;\n    while (l1 !== null && l2 !== null) {\n      if (l1.val <= l2.val) {\n        tail.next = l1;\n        l1 = l1.next;\n      } else {\n        tail.next = l2;\n        l2 = l2.next;\n      }\n      tail = tail.next;\n    }\n    tail.next = l1 !== null ? l1 : l2;\n    return dummy.next;\n  }\n}",
+    "input": {
+      "head": [
+        4,
+        2,
+        1,
+        3
+      ]
+    },
+    "expected": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "150": {
+    "code": "class Solution {\n  evalRPN(tokens) {\n    const stack = [];\n    for (const token of tokens) {\n      if (token === \"+\" || token === \"-\" || token === \"*\" || token === \"/\") {\n        const b = stack.pop();\n        const a = stack.pop();\n        if (token === \"+\") stack.push(a + b);\n        else if (token === \"-\") stack.push(a - b);\n        else if (token === \"*\") stack.push(a * b);\n        else stack.push(Math.trunc(a / b));\n      } else {\n        stack.push(Number(token));\n      }\n    }\n    return stack[0];\n  }\n}",
+    "input": {
+      "tokens": [
+        "2",
+        "1",
+        "+",
+        "3",
+        "*"
+      ]
+    },
+    "expected": 9
+  },
+  "151": {
+    "code": "class Solution {\n  reverseWords(s) {\n    const words = s.trim().split(/\\s+/);\n    words.reverse();\n    return words.join(\" \");\n  }\n}",
+    "input": {
+      "s": "the sky is blue"
+    },
+    "expected": "blue is sky the"
+  },
+  "153": {
+    "code": "class Solution {\n  findMin(nums) {\n    let left = 0;\n    let right = nums.length - 1;\n    while (left < right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] > nums[right]) left = mid + 1;\n      else right = mid;\n    }\n    return nums[left];\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        4,
+        5,
+        1,
+        2
+      ]
+    },
+    "expected": 1
+  },
+  "162": {
+    "code": "class Solution {\n  findPeakElement(nums) {\n    let left = 0;\n    let right = nums.length - 1;\n    while (left < right) {\n      const mid = Math.floor((left + right) / 2);\n      if (nums[mid] > nums[mid + 1]) right = mid;\n      else left = mid + 1;\n    }\n    return left;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3,
+        1
+      ]
+    },
+    "expected": 2
+  },
+  "167": {
+    "code": "class Solution {\n  twoSum(numbers, target) {\n    let left = 0;\n    let right = numbers.length - 1;\n    while (left < right) {\n      const sum = numbers[left] + numbers[right];\n      if (sum === target) return [left + 1, right + 1];\n      if (sum < target) left++;\n      else right--;\n    }\n    return [];\n  }\n}",
+    "input": {
+      "numbers": [
+        2,
+        7,
+        11,
+        15
+      ],
+      "target": 9
+    },
+    "expected": [
+      1,
+      2
+    ]
+  },
+  "169": {
+    "code": "class Solution {\n  majorityElement(nums) {\n    let candidate = nums[0];\n    let count = 0;\n    for (const num of nums) {\n      if (count === 0) candidate = num;\n      count += num === candidate ? 1 : -1;\n    }\n    return candidate;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    "expected": 2
+  },
+  "172": {
+    "code": "class Solution {\n  trailingZeroes(n) {\n    let count = 0;\n    while (n >= 5) {\n      n = Math.floor(n / 5);\n      count += n;\n    }\n    return count;\n  }\n}",
+    "input": {
+      "n": 25
+    },
+    "expected": 6
+  },
+  "173": {
+    "code": "class Solution {\n  inorderTraversal(root) {\n    var result = [];\n    var stack = [];\n    var curr = root;\n    while (curr !== null || stack.length > 0) {\n      while (curr !== null) { stack.push(curr); curr = curr.left; }\n      curr = stack.pop();\n      result.push(curr.val);\n      curr = curr.right;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        7,
+        3,
+        15,
+        null,
+        null,
+        9,
+        20
+      ]
+    },
+    "expected": [
+      3,
+      7,
+      9,
+      15,
+      20
+    ]
+  },
+  "189": {
+    "code": "class Solution {\n  rotate(nums, k) {\n    k = k % nums.length;\n    this.reverse(nums, 0, nums.length - 1);\n    this.reverse(nums, 0, k - 1);\n    this.reverse(nums, k, nums.length - 1);\n  }\n  reverse(nums, start, end) {\n    while (start < end) {\n      const temp = nums[start];\n      nums[start] = nums[end];\n      nums[end] = temp;\n      start++;\n      end--;\n    }\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "k": 3
+    },
+    "expected": [
+      5,
+      6,
+      7,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "190": {
+    "code": "class Solution {\n  reverseBits(n) {\n    let result = 0;\n    for (let i = 0; i < 32; i++) {\n      result = result * 2 + (n & 1);\n      n = n >>> 1;\n    }\n    return result >>> 0;\n  }\n}",
+    "input": {
+      "n": 43261596
+    },
+    "expected": 964176192
+  },
+  "191": {
+    "code": "class Solution {\n  hammingWeight(n) {\n    let count = 0;\n    while (n !== 0) {\n      n = n & (n - 1);\n      count++;\n    }\n    return count;\n  }\n}",
+    "input": {
+      "n": 11
+    },
+    "expected": 3
+  },
+  "198": {
+    "code": "class Solution {\n  rob(nums) {\n    let prev = 0;\n    let current = 0;\n    for (const num of nums) {\n      const next = Math.max(current, prev + num);\n      prev = current;\n      current = next;\n    }\n    return current;\n  }\n}",
+    "input": {
+      "nums": [
+        2,
+        7,
+        9,
+        3,
+        1
+      ]
+    },
+    "expected": 12
+  },
+  "199": {
+    "code": "class Solution {\n  rightSideView(root) {\n    const result = [];\n    if (root === null) return result;\n    let queue = [root];\n    while (queue.length > 0) {\n      result.push(queue[queue.length - 1].val);\n      const next = [];\n      for (const node of queue) {\n        if (node.left !== null) next.push(node.left);\n        if (node.right !== null) next.push(node.right);\n      }\n      queue = next;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3,
+        null,
+        5,
+        null,
+        4
+      ]
+    },
+    "expected": [
+      1,
+      3,
+      4
+    ]
+  },
+  "200": {
+    "code": "class Solution {\n  numIslands(grid) {\n    let islands = 0;\n    for (let r = 0; r < grid.length; r++) {\n      for (let c = 0; c < grid[0].length; c++) {\n        if (grid[r][c] === \"1\") {\n          islands++;\n          this.sink(grid, r, c);\n        }\n      }\n    }\n    return islands;\n  }\n  sink(grid, r, c) {\n    if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] !== \"1\") return;\n    grid[r][c] = \"0\";\n    this.sink(grid, r + 1, c);\n    this.sink(grid, r - 1, c);\n    this.sink(grid, r, c + 1);\n    this.sink(grid, r, c - 1);\n  }\n}",
+    "input": {
+      "grid": [
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "expected": 1
+  },
+  "201": {
+    "code": "class Solution {\n  rangeBitwiseAnd(left, right) {\n    let shift = 0;\n    while (left < right) {\n      left = left >> 1;\n      right = right >> 1;\n      shift++;\n    }\n    return left << shift;\n  }\n}",
+    "input": {
+      "left": 5,
+      "right": 7
+    },
+    "expected": 4
+  },
+  "202": {
+    "code": "class Solution {\n  isHappy(n) {\n    const seen = new Set();\n    while (n !== 1 && !seen.has(n)) {\n      seen.add(n);\n      let sum = 0;\n      while (n > 0) {\n        const digit = n % 10;\n        sum += digit * digit;\n        n = Math.floor(n / 10);\n      }\n      n = sum;\n    }\n    return n === 1;\n  }\n}",
+    "input": {
+      "n": 19
+    },
+    "expected": true
+  },
+  "205": {
+    "code": "class Solution {\n  isIsomorphic(s, t) {\n    const mapST = {};\n    const mapTS = {};\n    for (let i = 0; i < s.length; i++) {\n      const a = s[i];\n      const b = t[i];\n      if (mapST[a] === undefined && mapTS[b] === undefined) {\n        mapST[a] = b;\n        mapTS[b] = a;\n      } else if (mapST[a] !== b || mapTS[b] !== a) {\n        return false;\n      }\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s": "egg",
+      "t": "add"
+    },
+    "expected": true
+  },
+  "207": {
+    "code": "class Solution {\n  canFinish(numCourses, prerequisites) {\n    const graph = {};\n    for (const [a, b] of prerequisites) {\n      if (!graph[a]) graph[a] = [];\n      graph[a].push(b);\n    }\n    const state = new Array(numCourses).fill(0);\n    const dfs = (course) => {\n      if (state[course] === 1) return false;\n      if (state[course] === 2) return true;\n      state[course] = 1;\n      for (const next of graph[course] ?? []) {\n        if (!dfs(next)) return false;\n      }\n      state[course] = 2;\n      return true;\n    };\n    for (let i = 0; i < numCourses; i++) {\n      if (!dfs(i)) return false;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "numCourses": 2,
+      "prerequisites": [
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "expected": true
+  },
+  "209": {
+    "code": "class Solution {\n  minSubArrayLen(target, nums) {\n    let left = 0;\n    let sum = 0;\n    let best = Infinity;\n    for (let right = 0; right < nums.length; right++) {\n      sum += nums[right];\n      while (sum >= target) {\n        best = Math.min(best, right - left + 1);\n        sum -= nums[left];\n        left++;\n      }\n    }\n    return best === Infinity ? 0 : best;\n  }\n}",
+    "input": {
+      "target": 7,
+      "nums": [
+        2,
+        3,
+        1,
+        2,
+        4,
+        3
+      ]
+    },
+    "expected": 2
+  },
+  "210": {
+    "code": "class Solution {\n  findOrder(numCourses, prerequisites) {\n    const graph = {};\n    const indegree = new Array(numCourses).fill(0);\n    for (const [course, prereq] of prerequisites) {\n      if (!graph[prereq]) graph[prereq] = [];\n      graph[prereq].push(course);\n      indegree[course]++;\n    }\n    const queue = [];\n    for (let i = 0; i < numCourses; i++) {\n      if (indegree[i] === 0) queue.push(i);\n    }\n    const order = [];\n    while (queue.length > 0) {\n      const course = queue.shift();\n      order.push(course);\n      for (const next of graph[course] ?? []) {\n        indegree[next]--;\n        if (indegree[next] === 0) queue.push(next);\n      }\n    }\n    return order.length === numCourses ? order : [];\n  }\n}",
+    "input": {
+      "numCourses": 4,
+      "prerequisites": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ]
+      ]
+    },
+    "expected": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "212": {
+    "code": "class Solution {\n  findWords(board, words) {\n    const result = [];\n    const trie = {};\n    for (const word of words) {\n      let node = trie;\n      for (const ch of word) {\n        if (!node[ch]) node[ch] = {};\n        node = node[ch];\n      }\n      node.word = word;\n    }\n\n    const dfs = (r, c, node) => {\n      if (r < 0 || r >= board.length || c < 0 || c >= board[0].length) return;\n      const ch = board[r][c];\n      if (ch === \"#\" || !node[ch]) return;\n      const child = node[ch];\n      if (child.word) {\n        result.push(child.word);\n        delete child.word;\n      }\n      board[r][c] = \"#\";\n      dfs(r + 1, c, child);\n      dfs(r - 1, c, child);\n      dfs(r, c + 1, child);\n      dfs(r, c - 1, child);\n      board[r][c] = ch;\n    };\n\n    for (let r = 0; r < board.length; r++) {\n      for (let c = 0; c < board[0].length; c++) {\n        dfs(r, c, trie);\n      }\n    }\n    return result;\n  }\n}",
+    "input": {
+      "board": [
+        [
+          "o",
+          "a",
+          "a",
+          "n"
+        ],
+        [
+          "e",
+          "t",
+          "a",
+          "e"
+        ],
+        [
+          "i",
+          "h",
+          "k",
+          "r"
+        ],
+        [
+          "i",
+          "f",
+          "l",
+          "v"
+        ]
+      ],
+      "words": [
+        "oath",
+        "pea",
+        "eat",
+        "rain"
+      ]
+    },
+    "expected": [
+      "oath",
+      "eat"
+    ]
+  },
+  "215": {
+    "code": "class Solution {\n  findKthLargest(nums, k) {\n    nums.sort((a, b) => b - a);\n    return nums[k - 1];\n  }\n}",
+    "input": {
+      "nums": [
+        3,
+        2,
+        1,
+        5,
+        6,
+        4
+      ],
+      "k": 2
+    },
+    "expected": 5
+  },
+  "219": {
+    "code": "class Solution {\n  containsNearbyDuplicate(nums, k) {\n    const seen = new Map();\n    for (let i = 0; i < nums.length; i++) {\n      if (seen.has(nums[i]) && i - seen.get(nums[i]) <= k) return true;\n      seen.set(nums[i], i);\n    }\n    return false;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3,
+        1
+      ],
+      "k": 3
+    },
+    "expected": true
+  },
+  "221": {
+    "code": "class Solution {\n  maximalSquare(matrix) {\n    const rows = matrix.length;\n    const cols = matrix[0].length;\n    const dp = new Array(rows).fill(0).map(() => new Array(cols).fill(0));\n    let best = 0;\n    for (let r = 0; r < rows; r++) {\n      for (let c = 0; c < cols; c++) {\n        if (matrix[r][c] === \"1\") {\n          if (r === 0 || c === 0) dp[r][c] = 1;\n          else dp[r][c] = 1 + Math.min(dp[r - 1][c], dp[r][c - 1], dp[r - 1][c - 1]);\n          best = Math.max(best, dp[r][c]);\n        }\n      }\n    }\n    return best * best;\n  }\n}",
+    "input": {
+      "matrix": [
+        [
+          "1",
+          "0",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "1",
+          "0",
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    "expected": 4
+  },
+  "222": {
+    "code": "class Solution {\n  countNodes(root) {\n    if (root === null) return 0;\n    const height = (node) => {\n      let h = 0;\n      while (node !== null) {\n        h++;\n        node = node.left;\n      }\n      return h;\n    };\n    const left = height(root.left);\n    const right = height(root.right);\n    if (left === right) return (1 << left) + this.countNodes(root.right);\n    return (1 << right) + this.countNodes(root.left);\n  }\n}",
+    "input": {
+      "root": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "expected": 6
+  },
+  "226": {
+    "code": "class Solution {\n  invertTree(root) {\n    if (root === null) return null;\n    const left = this.invertTree(root.left);\n    const right = this.invertTree(root.right);\n    root.left = right;\n    root.right = left;\n    return root;\n  }\n}",
+    "input": {
+      "root": [
+        4,
+        2,
+        7,
+        1,
+        3,
+        6,
+        9
+      ]
+    },
+    "expected": [
+      4,
+      7,
+      2,
+      9,
+      6,
+      3,
+      1
+    ]
+  },
+  "228": {
+    "code": "class Solution {\n  summaryRanges(nums) {\n    const result = [];\n    let i = 0;\n    while (i < nums.length) {\n      let j = i;\n      while (j + 1 < nums.length && nums[j + 1] === nums[j] + 1) j++;\n      if (i === j) result.push(String(nums[i]));\n      else result.push(nums[i] + \"->\" + nums[j]);\n      i = j + 1;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "nums": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        7
+      ]
+    },
+    "expected": [
+      "0->2",
+      "4->5",
+      "7"
+    ]
+  },
+  "230": {
+    "code": "class Solution {\n  kthSmallest(root, k) {\n    let count = 0;\n    let result = null;\n    const walk = (node) => {\n      if (node === null || result !== null) return;\n      walk(node.left);\n      count++;\n      if (count === k) {\n        result = node.val;\n        return;\n      }\n      walk(node.right);\n    };\n    walk(root);\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        1,
+        4,
+        null,
+        2
+      ],
+      "k": 1
+    },
+    "expected": 1
+  },
+  "236": {
+    "code": "class Solution {\n  lowestCommonAncestor(root, p, q) {\n    return this.dfs(root, p, q);\n  }\n  dfs(node, p, q) {\n    if (node === null) return null;\n    if (node.val === p || node.val === q) return node;\n    const left = this.dfs(node.left, p, q);\n    const right = this.dfs(node.right, p, q);\n    if (left !== null && right !== null) return node;\n    return left !== null ? left : right;\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        5,
+        1,
+        6,
+        2,
+        0,
+        8,
+        null,
+        null,
+        7,
+        4
+      ],
+      "p": 5,
+      "q": 1
+    },
+    "expected": [
+      3,
+      5,
+      1,
+      6,
+      2,
+      0,
+      8,
+      null,
+      null,
+      7,
+      4
+    ]
+  },
+  "238": {
+    "code": "class Solution {\n  productExceptSelf(nums) {\n    const n = nums.length;\n    const answer = new Array(n).fill(1);\n    let prefix = 1;\n    for (let i = 0; i < n; i++) {\n      answer[i] = prefix;\n      prefix *= nums[i];\n    }\n    let suffix = 1;\n    for (let i = n - 1; i >= 0; i--) {\n      answer[i] *= suffix;\n      suffix *= nums[i];\n    }\n    return answer;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "expected": [
+      24,
+      12,
+      8,
+      6
+    ],
+    "bruteCode": "class Solution {\n  productExceptSelf(nums) {\n    const result = [];\n    for (let i = 0; i < nums.length; i++) {\n      let product = 1;\n      for (let j = 0; j < nums.length; j++) {\n        if (i !== j) product *= nums[j];\n      }\n      result.push(product);\n    }\n    return result;\n  }\n}"
+  },
+  "242": {
+    "code": "class Solution {\n  isAnagram(s, t) {\n    if (s.length !== t.length) return false;\n    const counts = {};\n    for (const char of s) counts[char] = (counts[char] || 0) + 1;\n    for (const char of t) {\n      if (!counts[char]) return false;\n      counts[char]--;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "s": "anagram",
+      "t": "nagaram"
+    },
+    "expected": true
+  },
+  "274": {
+    "code": "class Solution {\n  hIndex(citations) {\n    citations.sort((a, b) => a - b);\n    const n = citations.length;\n    for (let i = 0; i < n; i++) {\n      if (citations[i] >= n - i) return n - i;\n    }\n    return 0;\n  }\n}",
+    "input": {
+      "citations": [
+        3,
+        0,
+        6,
+        1,
+        5
+      ]
+    },
+    "expected": 3
+  },
+  "290": {
+    "code": "class Solution {\n  wordPattern(pattern, s) {\n    const words = s.split(\" \");\n    if (pattern.length !== words.length) return false;\n    const map = {};\n    const seen = new Set();\n    for (let i = 0; i < pattern.length; i++) {\n      const key = pattern[i];\n      const word = words[i];\n      if (map[key] === undefined) {\n        if (seen.has(word)) return false;\n        map[key] = word;\n        seen.add(word);\n      } else if (map[key] !== word) {\n        return false;\n      }\n    }\n    return true;\n  }\n}",
+    "input": {
+      "pattern": "abba",
+      "s": "dog cat cat dog"
+    },
+    "expected": true
+  },
+  "300": {
+    "code": "class Solution {\n  lengthOfLIS(nums) {\n    const tails = [];\n    for (const num of nums) {\n      let left = 0;\n      let right = tails.length;\n      while (left < right) {\n        const mid = Math.floor((left + right) / 2);\n        if (tails[mid] < num) left = mid + 1;\n        else right = mid;\n      }\n      if (left === tails.length) tails.push(num);\n      else tails[left] = num;\n    }\n    return tails.length;\n  }\n}",
+    "input": {
+      "nums": [
+        10,
+        9,
+        2,
+        5,
+        3,
+        7,
+        101,
+        18
+      ]
+    },
+    "expected": 4
+  },
+  "322": {
+    "code": "class Solution {\n  coinChange(coins, amount) {\n    const dp = new Array(amount + 1).fill(Infinity);\n    dp[0] = 0;\n    for (let i = 1; i <= amount; i++) {\n      for (const coin of coins) {\n        if (coin <= i) dp[i] = Math.min(dp[i], dp[i - coin] + 1);\n      }\n    }\n    return dp[amount] === Infinity ? -1 : dp[amount];\n  }\n}",
+    "input": {
+      "coins": [
+        1,
+        2,
+        5
+      ],
+      "amount": 11
+    },
+    "expected": 3
+  },
+  "383": {
+    "code": "class Solution {\n  canConstruct(ransomNote, magazine) {\n    const counts = {};\n    for (const char of magazine) counts[char] = (counts[char] || 0) + 1;\n    for (const char of ransomNote) {\n      if (!counts[char]) return false;\n      counts[char]--;\n    }\n    return true;\n  }\n}",
+    "input": {
+      "ransomNote": "aa",
+      "magazine": "aab"
+    },
+    "expected": true
+  },
+  "392": {
+    "code": "class Solution {\n  isSubsequence(s, t) {\n    let i = 0;\n    let j = 0;\n    while (i < s.length && j < t.length) {\n      if (s[i] === t[j]) i++;\n      j++;\n    }\n    return i === s.length;\n  }\n}",
+    "input": {
+      "s": "abc",
+      "t": "ahbgdc"
+    },
+    "expected": true
+  },
+  "399": {
+    "code": "class Solution {\n  calcEquation(equations, values, queries) {\n    const graph = new Map();\n    for (let i = 0; i < equations.length; i++) {\n      const [a, b] = equations[i];\n      if (!graph.has(a)) graph.set(a, new Map());\n      if (!graph.has(b)) graph.set(b, new Map());\n      graph.get(a).set(b, values[i]);\n      graph.get(b).set(a, 1 / values[i]);\n    }\n\n    const bfs = (start, end) => {\n      if (!graph.has(start) || !graph.has(end)) return -1;\n      if (start === end) return 1;\n      const visited = new Set([start]);\n      const queue = [[start, 1]];\n      while (queue.length > 0) {\n        const [node, weight] = queue.shift();\n        for (const [neighbor, w] of graph.get(node)) {\n          if (neighbor === end) return weight * w;\n          if (!visited.has(neighbor)) {\n            visited.add(neighbor);\n            queue.push([neighbor, weight * w]);\n          }\n        }\n      }\n      return -1;\n    };\n\n    return queries.map(([a, b]) => bfs(a, b));\n  }\n}",
+    "input": {
+      "equations": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "b",
+          "c"
+        ]
+      ],
+      "values": [
+        2,
+        3
+      ],
+      "queries": [
+        [
+          "a",
+          "c"
+        ],
+        [
+          "b",
+          "a"
+        ],
+        [
+          "a",
+          "e"
+        ],
+        [
+          "a",
+          "a"
+        ],
+        [
+          "x",
+          "x"
+        ]
+      ]
+    },
+    "expected": [
+      6,
+      0.5,
+      -1,
+      1,
+      -1
+    ]
+  },
+  "452": {
+    "code": "class Solution {\n  findMinArrowShots(points) {\n    points.sort((a, b) => a[0] - b[0]);\n    let arrows = 1;\n    let end = points[0][1];\n    for (let i = 1; i < points.length; i++) {\n      if (points[i][0] > end) {\n        arrows++;\n        end = points[i][1];\n      } else {\n        end = Math.min(end, points[i][1]);\n      }\n    }\n    return arrows;\n  }\n}",
+    "input": {
+      "points": [
+        [
+          10,
+          16
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    "expected": 2
+  },
+  "530": {
+    "code": "class Solution {\n  getMinimumDifference(root) {\n    let previous = null;\n    let best = Infinity;\n    const walk = (node) => {\n      if (node === null) return;\n      walk(node.left);\n      if (previous !== null) best = Math.min(best, node.val - previous);\n      previous = node.val;\n      walk(node.right);\n    };\n    walk(root);\n    return best;\n  }\n}",
+    "input": {
+      "root": [
+        4,
+        2,
+        6,
+        1,
+        3
+      ]
+    },
+    "expected": 1
+  },
+  "637": {
+    "code": "class Solution {\n  averageOfLevels(root) {\n    const result = [];\n    let queue = [root];\n    while (queue.length > 0) {\n      const next = [];\n      let sum = 0;\n      for (const node of queue) {\n        sum += node.val;\n        if (node.left !== null) next.push(node.left);\n        if (node.right !== null) next.push(node.right);\n      }\n      result.push(sum / queue.length);\n      queue = next;\n    }\n    return result;\n  }\n}",
+    "input": {
+      "root": [
+        3,
+        9,
+        20,
+        null,
+        null,
+        15,
+        7
+      ]
+    },
+    "expected": [
+      3,
+      14.5,
+      11
+    ]
+  },
+  "918": {
+    "code": "class Solution {\n  maxSubarraySumCircular(nums) {\n    let maxEnd = nums[0];\n    let minEnd = nums[0];\n    let maxSum = nums[0];\n    let minSum = nums[0];\n    let total = nums[0];\n    for (let i = 1; i < nums.length; i++) {\n      const num = nums[i];\n      maxEnd = Math.max(num, maxEnd + num);\n      maxSum = Math.max(maxSum, maxEnd);\n      minEnd = Math.min(num, minEnd + num);\n      minSum = Math.min(minSum, minEnd);\n      total += num;\n    }\n    return maxSum > 0 ? Math.max(maxSum, total - minSum) : maxSum;\n  }\n}",
+    "input": {
+      "nums": [
+        1,
+        -2,
+        3,
+        -2
+      ]
+    },
+    "expected": 3
+  }
+}

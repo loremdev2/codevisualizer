@@ -1,0 +1,1 @@
+Paste any algorithm and watch it think — DSA Lab traces every comparison, swap, and recursive call, one state at a time. No visualization code required. Just step through it.

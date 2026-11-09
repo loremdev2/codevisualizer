@@ -1,0 +1,10 @@
+DSA Lab — narrated cut (25s)
+
+Your code has a body. Watch it move. 👀
+
+DSA Lab traces algorithms step by step — every comparison, swap, and
+recursive call, rendered live. Paste a sort, hit run, and watch it think.
+
+▶ 25 seconds, narrated. Sound on.
+
+#buildinpublic #algorithms #devtools
