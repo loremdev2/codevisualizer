@@ -20,7 +20,7 @@ export function AuthLoaderScreen({
       {/* Ambient background lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
       <div className="absolute bottom-1/4 left-1/3 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
-      <div className="absolute inset-0 bg-[url('/algorithm-workspace-hero.png')] bg-cover bg-center opacity-50" />
+      <div className="absolute inset-0 bg-[url('/algorithm-workspace-hero.webp')] bg-cover bg-center opacity-50" />
       <div className="absolute inset-0 bg-foreground/60" />
 
       {/* Glassmorphic Card */}

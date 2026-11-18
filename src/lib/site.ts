@@ -47,7 +47,7 @@ export const SITE_URL = canonicalOrigin.replace(/\/$/, "");
 // Launch video (narrated Hyperframes render). Used by the landing-page embed
 // and the openGraph video metadata so shared links unfurl with the video.
 // ---------------------------------------------------------------------------
-export const BRAG_VIDEO_PATH = "/brag-narrated.mp4";
-export const BRAG_VIDEO_POSTER_PATH = "/brag.jpg";
-export const BRAG_VIDEO_WIDTH = 1920;
-export const BRAG_VIDEO_HEIGHT = 1080;
+export const BRAG_VIDEO_PATH = "/brag-narrated-540p.mp4";
+export const BRAG_VIDEO_POSTER_PATH = "/brag-poster.webp";
+export const BRAG_VIDEO_WIDTH = 960;
+export const BRAG_VIDEO_HEIGHT = 540;

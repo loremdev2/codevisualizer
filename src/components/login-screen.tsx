@@ -29,7 +29,7 @@ export function LoginScreen() {
 
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden bg-foreground px-5 py-8">
-      <div className="absolute inset-0 bg-[url('/algorithm-workspace-hero.png')] bg-cover bg-center opacity-60" />
+      <div className="absolute inset-0 bg-[url('/algorithm-workspace-hero.webp')] bg-cover bg-center opacity-60" />
       <div className="absolute inset-0 bg-foreground/55" />
       <section className="relative w-full max-w-md border border-white/20 bg-background p-6 shadow-soft sm:p-8">
         <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">

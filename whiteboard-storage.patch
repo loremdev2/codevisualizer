@@ -1,0 +1,538 @@
+diff --git a/src/app/api/me/whiteboards/[id]/route.ts b/src/app/api/me/whiteboards/[id]/route.ts
+index fd2ab7c..1fbf80c 100644
+--- a/src/app/api/me/whiteboards/[id]/route.ts
++++ b/src/app/api/me/whiteboards/[id]/route.ts
+@@ -4,6 +4,10 @@ import { getServiceClient } from "@/lib/db";
+ import { getSessionUserId } from "@/lib/auth/session";
+ import { requireSameOrigin } from "@/lib/security/csrf";
+ import { resolveFolderId } from "@/lib/whiteboard-folders";
++import {
++  getWhiteboardAssetMap,
++  hydrateWhiteboardAssets,
++} from "@/lib/whiteboard-storage";
+ 
+ const SELECT_COLUMNS =
+   "id, name, data, thumbnail, public, user_id, folder_id, created_at, updated_at";
+@@ -38,7 +42,12 @@ export async function GET(
+     .eq("id", data.user_id)
+     .maybeSingle();
+ 
+-  return NextResponse.json({ whiteboard: { ...data, author: user ?? null } });
++  try {
++    const hydrated = await hydrateWhiteboardAssets(client, data.data);
++    return NextResponse.json({ whiteboard: { ...data, data: hydrated, author: user ?? null } });
++  } catch {
++    return NextResponse.json({ error: "Could not load whiteboard assets." }, { status: 500 });
++  }
+ }
+ 
+ export async function PUT(
+@@ -62,6 +71,8 @@ export async function PUT(
+     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+   }
+ 
++  const client = getServiceClient();
++
+   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+   if (typeof body.name === "string") {
+     const name = body.name.trim();
+@@ -71,6 +82,42 @@ export async function PUT(
+     updates.name = name;
+   }
+   if (body.data !== undefined) {
++    if (!body.data || typeof body.data !== "object" || Array.isArray(body.data)) {
++      return NextResponse.json({ error: "Invalid whiteboard data." }, { status: 400 });
++    }
++    const assets = getWhiteboardAssetMap(body.data);
++    const assetPaths = Object.values(assets);
++    const externalPaths = assetPaths.map((path) => {
++      const [assetOwnerId, sourceBoardId, fileName, ...rest] = path.split("/");
++      if (!assetOwnerId || !sourceBoardId || !fileName || rest.length > 0 || path.includes("..")) {
++        return { path, validShape: false, assetOwnerId: "", sourceBoardId: "" };
++      }
++      return { path, validShape: true, assetOwnerId, sourceBoardId };
++    });
++    const invalidShape = externalPaths.some((asset) => !asset.validShape);
++    if (invalidShape) {
++      return NextResponse.json({ error: "Invalid whiteboard asset path." }, { status: 400 });
++    }
++    const externalBoardIds = [...new Set(
++      externalPaths
++        .filter((asset) => asset.assetOwnerId !== userId)
++        .map((asset) => asset.sourceBoardId),
++    )];
++    let publicBoardOwners = new Map<string, string>();
++    if (externalBoardIds.length > 0) {
++      const { data: sourceBoards } = await client
++        .from("whiteboards")
++        .select("id, user_id")
++        .in("id", externalBoardIds)
++        .eq("public", true);
++      publicBoardOwners = new Map((sourceBoards ?? []).map((board) => [board.id, board.user_id]));
++    }
++    const allowedPaths = externalPaths.map((asset) =>
++      asset.assetOwnerId === userId || publicBoardOwners.get(asset.sourceBoardId) === asset.assetOwnerId,
++    );
++    if (allowedPaths.some((allowed) => !allowed)) {
++      return NextResponse.json({ error: "Invalid whiteboard asset path." }, { status: 400 });
++    }
+     updates.data = body.data;
+   }
+   if (typeof body.public === "boolean") {
+@@ -90,7 +137,7 @@ export async function PUT(
+     updates.folder_id = resolved.folderId;
+   }
+ 
+-  const { data, error } = await getServiceClient()
++  const { data, error } = await client
+     .from("whiteboards")
+     .update(updates)
+     .eq("id", id)
+@@ -101,6 +148,7 @@ export async function PUT(
+   if (error) {
+     return NextResponse.json({ error: error.message }, { status: 500 });
+   }
++
+   return NextResponse.json({ whiteboard: data });
+ }
+ 
+diff --git a/src/app/api/whiteboards/public/[id]/route.ts b/src/app/api/whiteboards/public/[id]/route.ts
+index 9ce4b36..d3e989d 100644
+--- a/src/app/api/whiteboards/public/[id]/route.ts
++++ b/src/app/api/whiteboards/public/[id]/route.ts
+@@ -1,6 +1,7 @@
+ import { NextResponse, type NextRequest } from "next/server";
+ 
+ import { getServiceClient } from "@/lib/db";
++import { hydrateWhiteboardAssets } from "@/lib/whiteboard-storage";
+ 
+ /**
+  * Public, unauthenticated read access to a single shared whiteboard.
+@@ -31,5 +32,10 @@ export async function GET(
+       { status: 404 },
+     );
+   }
+-  return NextResponse.json({ whiteboard: data });
++  try {
++    const hydrated = await hydrateWhiteboardAssets(getServiceClient(), data.data);
++    return NextResponse.json({ whiteboard: { ...data, data: hydrated } });
++  } catch {
++    return NextResponse.json({ error: "Could not load whiteboard assets." }, { status: 500 });
++  }
+ }
+diff --git a/src/app/whiteboard/[id]/page.tsx b/src/app/whiteboard/[id]/page.tsx
+index 2296ffa..a9ed6e7 100644
+--- a/src/app/whiteboard/[id]/page.tsx
++++ b/src/app/whiteboard/[id]/page.tsx
+@@ -46,6 +46,10 @@ import { SignInPrompt } from "@/components/sign-in-prompt";
+ import { DSA_TEMPLATES } from "@/lib/whiteboard-templates";
+ import { SYSTEM_DESIGN_INSERTS } from "@/lib/system-design-templates";
+ import { SiteNav } from "@/components/site-nav";
++import {
++  getWhiteboardAssetMap,
++} from "@/lib/whiteboard-storage";
++import { uploadWhiteboardFiles, type WhiteboardClientFile } from "@/lib/whiteboard-client-storage";
+ 
+ // Excalidraw must be loaded client-side only (requires browser APIs).
+ const Excalidraw = dynamic(
+@@ -115,6 +119,7 @@ export default function WhiteboardEditorPage({
+   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   const isDirtyRef = useRef(false);
+   const changeVersionRef = useRef(0);
++  const storageAssetsRef = useRef<Record<string, string>>({});
+   const containerRef = useRef<HTMLDivElement>(null);
+ 
+   const isDark = useSyncExternalStore(
+@@ -136,6 +141,7 @@ export default function WhiteboardEditorPage({
+         API.me.whiteboard(id),
+       );
+       if (result.ok && result.data.whiteboard) {
++        storageAssetsRef.current = getWhiteboardAssetMap(result.data.whiteboard.data);
+         setWhiteboard(result.data.whiteboard);
+         setNameValue(result.data.whiteboard.name);
+         setIsPublic(result.data.whiteboard.public ?? false);
+@@ -153,6 +159,7 @@ export default function WhiteboardEditorPage({
+           API.publicWhiteboard(id),
+         );
+         if (pub.ok && pub.data.whiteboard) {
++          storageAssetsRef.current = getWhiteboardAssetMap(pub.data.whiteboard.data);
+           setReadOnly(true);
+           setWhiteboard(pub.data.whiteboard);
+         } else {
+@@ -210,7 +217,12 @@ export default function WhiteboardEditorPage({
+     try {
+       const elements = excalidrawAPIRef.current.getSceneElements();
+       const appState = excalidrawAPIRef.current.getAppState();
+-      const files = excalidrawAPIRef.current.getFiles();
++      const files = excalidrawAPIRef.current.getFiles() as Record<string, WhiteboardClientFile>;
++      const storedFiles = await uploadWhiteboardFiles(id, files, storageAssetsRef.current);
++      if (!storedFiles.ok) {
++        setError(storedFiles.error);
++        return;
++      }
+ 
+       const data = {
+         elements,
+@@ -218,7 +230,8 @@ export default function WhiteboardEditorPage({
+           viewBackgroundColor: appState.viewBackgroundColor,
+           gridSize: appState.gridSize,
+         },
+-        files,
++        files: storedFiles.files,
++        storageAssets: storedFiles.storageAssets,
+       };
+ 
+       // Generate thumbnail in parallel with save
+@@ -234,6 +247,7 @@ export default function WhiteboardEditorPage({
+       );
+ 
+       if (result.ok) {
++        storageAssetsRef.current = storedFiles.storageAssets;
+         if (changeVersionRef.current === savedVersion) {
+           isDirtyRef.current = false;
+           setSaved(true);
+@@ -441,7 +455,8 @@ export default function WhiteboardEditorPage({
+           viewBackgroundColor: appState.viewBackgroundColor,
+           gridSize: appState.gridSize,
+         },
+-        files,
++        files: {},
++        storageAssets: {},
+       };
+ 
+       const result = await fetchJson<{ whiteboard?: WhiteboardData }>(
+@@ -458,6 +473,24 @@ export default function WhiteboardEditorPage({
+       );
+ 
+       if (result.ok && result.data.whiteboard) {
++        const newId = result.data.whiteboard.id;
++        const storedFiles = await uploadWhiteboardFiles(newId, files);
++        if (!storedFiles.ok) {
++          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
++          setError(storedFiles.error);
++          return;
++        }
++        const savedData = { ...data, files: storedFiles.files, storageAssets: storedFiles.storageAssets };
++        const savedCopy = await fetchJson(API.me.whiteboard(newId), {
++          method: "PUT",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ data: savedData }),
++        });
++        if (!savedCopy.ok) {
++          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
++          setError(savedCopy.error);
++          return;
++        }
+         router.push(`/whiteboard/${result.data.whiteboard.id}`);
+       }
+     } catch {
+@@ -476,6 +509,15 @@ export default function WhiteboardEditorPage({
+     }
+     setForking(true);
+     try {
++      const files = excalidrawAPIRef.current?.getFiles() as
++        | Record<string, WhiteboardClientFile>
++        | undefined;
++      const sourceData = whiteboard.data as Record<string, unknown>;
++      const forkData = {
++        ...sourceData,
++        files: {},
++        storageAssets: {},
++      };
+       const result = await fetchJson<{ whiteboard?: WhiteboardData }>(
+         API.me.whiteboards,
+         {
+@@ -483,12 +525,30 @@ export default function WhiteboardEditorPage({
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({
+             name: `${whiteboard.name} (forked)`,
+-            data: whiteboard.data,
++            data: forkData,
+             thumbnail: whiteboard.thumbnail,
+           }),
+         },
+       );
+       if (result.ok && result.data.whiteboard) {
++        const newId = result.data.whiteboard.id;
++        const storedFiles = await uploadWhiteboardFiles(newId, files ?? {});
++        if (!storedFiles.ok) {
++          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
++          setError(storedFiles.error);
++          return;
++        }
++        const savedData = { ...forkData, files: storedFiles.files, storageAssets: storedFiles.storageAssets };
++        const savedFork = await fetchJson(API.me.whiteboard(newId), {
++          method: "PUT",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ data: savedData }),
++        });
++        if (!savedFork.ok) {
++          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
++          setError(savedFork.error);
++          return;
++        }
+         setForkedId(result.data.whiteboard.id);
+       }
+     } finally {
+diff --git a/src/lib/api-config.ts b/src/lib/api-config.ts
+index f6ca12c..d873d94 100644
+--- a/src/lib/api-config.ts
++++ b/src/lib/api-config.ts
+@@ -25,6 +25,8 @@ export const API = {
+     savedAlgorithm: (id: string) => `/api/me/saved-algorithms/${encodeURIComponent(id)}` as const,
+     whiteboards: "/api/me/whiteboards",
+     whiteboard: (id: string) => `/api/me/whiteboards/${encodeURIComponent(id)}` as const,
++    whiteboardAssets: (id: string) =>
++      `/api/me/whiteboards/${encodeURIComponent(id)}/assets` as const,
+     whiteboardFolders: "/api/me/whiteboard-folders",
+     whiteboardFolder: (id: string) =>
+       `/api/me/whiteboard-folders/${encodeURIComponent(id)}` as const,
+diff --git a/src/app/api/me/whiteboards/[id]/assets/route.ts b/src/app/api/me/whiteboards/[id]/assets/route.ts
+new file mode 100644
+index 0000000..1f9a5ca
+--- /dev/null
++++ b/src/app/api/me/whiteboards/[id]/assets/route.ts
+@@ -0,0 +1,80 @@
++import { NextResponse, type NextRequest } from "next/server";
++
++import { getServiceClient } from "@/lib/db";
++import { getSessionUserId } from "@/lib/auth/session";
++import { requireSameOrigin } from "@/lib/security/csrf";
++import { WHITEBOARD_ASSETS_BUCKET } from "@/lib/whiteboard-storage";
++
++const MAX_FILES_PER_REQUEST = 100;
++const MAX_FILE_BYTES = 25 * 1024 * 1024;
++const ALLOWED_TYPES = new Set([
++  "image/png",
++  "image/jpeg",
++  "image/webp",
++  "image/gif",
++  "image/svg+xml",
++]);
++
++export async function POST(
++  request: NextRequest,
++  { params }: { params: Promise<{ id: string }> },
++) {
++  const csrfError = requireSameOrigin(request);
++  if (csrfError) return csrfError;
++
++  const userId = await getSessionUserId(request);
++  if (!userId) {
++    return NextResponse.json({ error: "Sign in to upload whiteboard assets." }, { status: 401 });
++  }
++
++  let body: { files?: unknown };
++  try {
++    body = await request.json();
++  } catch {
++    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
++  }
++  if (!Array.isArray(body.files) || body.files.length > MAX_FILES_PER_REQUEST) {
++    return NextResponse.json({ error: "Invalid whiteboard asset list." }, { status: 400 });
++  }
++
++  const { id: boardId } = await params;
++  const client = getServiceClient();
++  const { data: board, error: boardError } = await client
++    .from("whiteboards")
++    .select("id")
++    .eq("id", boardId)
++    .eq("user_id", userId)
++    .maybeSingle();
++  if (boardError || !board) {
++    return NextResponse.json({ error: "Whiteboard not found." }, { status: 404 });
++  }
++
++  const requests: { id: string; mimeType: string; size: number }[] = [];
++  for (const raw of body.files) {
++    if (!raw || typeof raw !== "object") {
++      return NextResponse.json({ error: "Invalid whiteboard asset." }, { status: 400 });
++    }
++    const file = raw as Record<string, unknown>;
++    if (
++      typeof file.id !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(file.id) ||
++      typeof file.mimeType !== "string" || !ALLOWED_TYPES.has(file.mimeType) ||
++      typeof file.size !== "number" || !Number.isInteger(file.size) ||
++      file.size <= 0 || file.size > MAX_FILE_BYTES
++    ) {
++      return NextResponse.json({ error: "Unsupported or oversized whiteboard asset." }, { status: 400 });
++    }
++    requests.push({ id: file.id, mimeType: file.mimeType, size: file.size });
++  }
++
++  const uploads = await Promise.all(requests.map(async (file) => {
++    const extension = file.mimeType === "image/jpeg" ? "jpg" : file.mimeType.split("/")[1];
++    const path = `${userId}/${boardId}/${crypto.randomUUID()}.${extension}`;
++    const { data, error } = await client.storage
++      .from(WHITEBOARD_ASSETS_BUCKET)
++      .createSignedUploadUrl(path);
++    if (error || !data) throw new Error("Could not prepare whiteboard asset upload.");
++    return { id: file.id, path, signedUrl: data.signedUrl };
++  }));
++
++  return NextResponse.json({ uploads });
++}
+diff --git a/src/lib/whiteboard-client-storage.ts b/src/lib/whiteboard-client-storage.ts
+new file mode 100644
+index 0000000..d04b870
+--- /dev/null
++++ b/src/lib/whiteboard-client-storage.ts
+@@ -0,0 +1,82 @@
++import { API, fetchJson } from "@/lib/api-config";
++import { WHITEBOARD_STORAGE_PREFIX } from "@/lib/whiteboard-storage";
++
++export type WhiteboardClientFile = {
++  id: string;
++  mimeType: string;
++  dataURL: string;
++  created: number;
++  [key: string]: unknown;
++};
++
++export async function uploadWhiteboardFiles(
++  boardId: string,
++  files: Record<string, WhiteboardClientFile>,
++  existingAssets: Record<string, string> = {},
++): Promise<
++  | { ok: true; files: Record<string, WhiteboardClientFile>; storageAssets: Record<string, string> }
++  | { ok: false; error: string }
++> {
++  const storageAssets = { ...existingAssets };
++  const pendingFiles = Object.values(files).filter(
++    (file) =>
++      !storageAssets[file.id] &&
++      (file.dataURL.startsWith("data:") || file.dataURL.startsWith("https://")),
++  );
++  const blobs = new Map<string, Blob>();
++  for (const file of pendingFiles) {
++    try {
++      blobs.set(file.id, await (await fetch(file.dataURL)).blob());
++    } catch {
++      return { ok: false, error: "Could not read a whiteboard image." };
++    }
++  }
++
++  if (pendingFiles.length > 0) {
++    const plan = await fetchJson<{
++      uploads?: { id: string; path: string; signedUrl: string }[];
++    }>(API.me.whiteboardAssets(boardId), {
++      method: "POST",
++      headers: { "Content-Type": "application/json" },
++      body: JSON.stringify({
++        files: pendingFiles.map((file) => ({
++          id: file.id,
++          mimeType: file.mimeType,
++          size: blobs.get(file.id)?.size ?? 0,
++        })),
++      }),
++    });
++    if (!plan.ok || !plan.data.uploads) {
++      return { ok: false, error: plan.ok ? "Could not prepare image uploads." : plan.error };
++    }
++
++    const uploadsById = new Map(plan.data.uploads.map((upload) => [upload.id, upload]));
++    for (const file of pendingFiles) {
++      const upload = uploadsById.get(file.id);
++      const blob = blobs.get(file.id);
++      if (!upload || !blob) return { ok: false, error: "Could not prepare an image upload." };
++      const form = new FormData();
++      form.append("cacheControl", "31536000");
++      form.append("", blob, file.id);
++      try {
++        const response = await fetch(upload.signedUrl, { method: "POST", body: form });
++        if (!response.ok) {
++          return { ok: false, error: "Could not upload a whiteboard image. Please try again." };
++        }
++      } catch {
++        return { ok: false, error: "Could not upload a whiteboard image. Please try again." };
++      }
++      storageAssets[file.id] = upload.path;
++    }
++  }
++
++  const persistedFiles = Object.fromEntries(
++    Object.entries(files).map(([fileId, file]) => [
++      fileId,
++      storageAssets[file.id]
++        ? { ...file, dataURL: `${WHITEBOARD_STORAGE_PREFIX}${storageAssets[file.id]}` }
++        : file,
++    ]),
++  );
++  return { ok: true, files: persistedFiles, storageAssets };
++}
+diff --git a/src/lib/whiteboard-storage.ts b/src/lib/whiteboard-storage.ts
+new file mode 100644
+index 0000000..994cd30
+--- /dev/null
++++ b/src/lib/whiteboard-storage.ts
+@@ -0,0 +1,48 @@
++import type { SupabaseClient } from "@supabase/supabase-js";
++
++export const WHITEBOARD_ASSETS_BUCKET = "whiteboard-assets";
++export const WHITEBOARD_STORAGE_PREFIX = "storage://";
++export const WHITEBOARD_SIGNED_URL_TTL_SECONDS = 60 * 60;
++
++export type WhiteboardAssetMap = Record<string, string>;
++
++export function getWhiteboardAssetMap(data: unknown): WhiteboardAssetMap {
++  if (!data || typeof data !== "object") return {};
++  const value = (data as Record<string, unknown>).storageAssets;
++  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
++  return Object.fromEntries(
++    Object.entries(value).filter((entry): entry is [string, string] =>
++      typeof entry[1] === "string",
++    ),
++  );
++}
++
++/** Replace compact storage markers with temporary URLs only in API responses. */
++export async function hydrateWhiteboardAssets(
++  client: SupabaseClient,
++  data: unknown,
++): Promise<Record<string, unknown>> {
++  if (!data || typeof data !== "object") return {};
++  const result = structuredClone(data) as Record<string, unknown>;
++  const files = result.files;
++  const assets = getWhiteboardAssetMap(result);
++  const entries = Object.entries(assets);
++  if (!files || typeof files !== "object" || entries.length === 0) return result;
++
++  const { data: signed, error } = await client.storage
++    .from(WHITEBOARD_ASSETS_BUCKET)
++    .createSignedUrls(entries.map(([, path]) => path), WHITEBOARD_SIGNED_URL_TTL_SECONDS);
++  if (error) throw new Error("Could not create whiteboard asset URLs.");
++
++  const signedByPath = new Map((signed ?? []).map((item) => [item.path, item.signedUrl]));
++  const hydratedFiles = { ...(files as Record<string, Record<string, unknown>>) };
++  for (const [fileId, path] of entries) {
++    const signedUrl = signedByPath.get(path);
++    if (signedUrl && hydratedFiles[fileId]) {
++      hydratedFiles[fileId] = { ...hydratedFiles[fileId], dataURL: signedUrl };
++    }
++  }
++  result.files = hydratedFiles;
++  return result;
++}
++
+diff --git a/supabase/migrations/20261111123551_whiteboard_storage_assets.sql b/supabase/migrations/20261111123551_whiteboard_storage_assets.sql
+new file mode 100644
+index 0000000..221a2c7
+--- /dev/null
++++ b/supabase/migrations/20261111123551_whiteboard_storage_assets.sql
+@@ -0,0 +1,15 @@
++-- Keep whiteboard images out of the JSONB scene snapshot. The bucket stays
++-- private; the application issues short-lived signed upload/download URLs
++-- only after checking whiteboard ownership or public visibility.
++insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
++values (
++  'whiteboard-assets',
++  'whiteboard-assets',
++  false,
++  26214400,
++  array['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']
++)
++on conflict (id) do update set
++  public = excluded.public,
++  file_size_limit = excluded.file_size_limit,
++  allowed_mime_types = excluded.allowed_mime_types;

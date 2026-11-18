@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    images: [{ url: "/algorithm-workspace-hero.png", width: 1200, height: 630, alt: "DSA Lab visualizer workspace" }],
+    images: [{ url: "/algorithm-workspace-hero.webp", width: 1600, height: 900, alt: "DSA Lab visualizer workspace" }],
     videos: [
       {
         // og:video must be absolute — Next only resolves image URLs against
@@ -93,7 +93,7 @@ export default function Home() {
         {/* Background image with gradient overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.07] dark:opacity-[0.12]"
-          style={{ backgroundImage: "url(/algorithm-workspace-hero.png)" }}
+          style={{ backgroundImage: "url(/algorithm-workspace-hero.webp)" }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-neutral-950 via-neutral-950/95 to-neutral-900 dark:from-background dark:via-background/95 dark:to-primary/10" />
 
