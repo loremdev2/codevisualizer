@@ -25,6 +25,8 @@ export const API = {
     savedAlgorithm: (id: string) => `/api/me/saved-algorithms/${encodeURIComponent(id)}` as const,
     whiteboards: "/api/me/whiteboards",
     whiteboard: (id: string) => `/api/me/whiteboards/${encodeURIComponent(id)}` as const,
+    whiteboardAssets: (id: string) =>
+      `/api/me/whiteboards/${encodeURIComponent(id)}/assets` as const,
     whiteboardFolders: "/api/me/whiteboard-folders",
     whiteboardFolder: (id: string) =>
       `/api/me/whiteboard-folders/${encodeURIComponent(id)}` as const,

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getServiceClient } from "@/lib/db";
+import { hydrateWhiteboardAssets } from "@/lib/whiteboard-storage";
 
 /**
  * Public, unauthenticated read access to a single shared whiteboard.
@@ -31,5 +32,10 @@ export async function GET(
       { status: 404 },
     );
   }
-  return NextResponse.json({ whiteboard: data });
+  try {
+    const hydrated = await hydrateWhiteboardAssets(getServiceClient(), data.data);
+    return NextResponse.json({ whiteboard: { ...data, data: hydrated } });
+  } catch {
+    return NextResponse.json({ error: "Could not load whiteboard assets." }, { status: 500 });
+  }
 }

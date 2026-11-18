@@ -46,6 +46,10 @@ import { SignInPrompt } from "@/components/sign-in-prompt";
 import { DSA_TEMPLATES } from "@/lib/whiteboard-templates";
 import { SYSTEM_DESIGN_INSERTS } from "@/lib/system-design-templates";
 import { SiteNav } from "@/components/site-nav";
+import {
+  getWhiteboardAssetMap,
+} from "@/lib/whiteboard-storage";
+import { uploadWhiteboardFiles, type WhiteboardClientFile } from "@/lib/whiteboard-client-storage";
 
 // Excalidraw must be loaded client-side only (requires browser APIs).
 const Excalidraw = dynamic(
@@ -115,6 +119,7 @@ export default function WhiteboardEditorPage({
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDirtyRef = useRef(false);
   const changeVersionRef = useRef(0);
+  const storageAssetsRef = useRef<Record<string, string>>({});
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isDark = useSyncExternalStore(
@@ -136,6 +141,7 @@ export default function WhiteboardEditorPage({
         API.me.whiteboard(id),
       );
       if (result.ok && result.data.whiteboard) {
+        storageAssetsRef.current = getWhiteboardAssetMap(result.data.whiteboard.data);
         setWhiteboard(result.data.whiteboard);
         setNameValue(result.data.whiteboard.name);
         setIsPublic(result.data.whiteboard.public ?? false);
@@ -153,6 +159,7 @@ export default function WhiteboardEditorPage({
           API.publicWhiteboard(id),
         );
         if (pub.ok && pub.data.whiteboard) {
+          storageAssetsRef.current = getWhiteboardAssetMap(pub.data.whiteboard.data);
           setReadOnly(true);
           setWhiteboard(pub.data.whiteboard);
         } else {
@@ -210,7 +217,12 @@ export default function WhiteboardEditorPage({
     try {
       const elements = excalidrawAPIRef.current.getSceneElements();
       const appState = excalidrawAPIRef.current.getAppState();
-      const files = excalidrawAPIRef.current.getFiles();
+      const files = excalidrawAPIRef.current.getFiles() as Record<string, WhiteboardClientFile>;
+      const storedFiles = await uploadWhiteboardFiles(id, files, storageAssetsRef.current);
+      if (!storedFiles.ok) {
+        setError(storedFiles.error);
+        return;
+      }
 
       const data = {
         elements,
@@ -218,7 +230,8 @@ export default function WhiteboardEditorPage({
           viewBackgroundColor: appState.viewBackgroundColor,
           gridSize: appState.gridSize,
         },
-        files,
+        files: storedFiles.files,
+        storageAssets: storedFiles.storageAssets,
       };
 
       // Generate thumbnail in parallel with save
@@ -234,6 +247,7 @@ export default function WhiteboardEditorPage({
       );
 
       if (result.ok) {
+        storageAssetsRef.current = storedFiles.storageAssets;
         if (changeVersionRef.current === savedVersion) {
           isDirtyRef.current = false;
           setSaved(true);
@@ -441,7 +455,8 @@ export default function WhiteboardEditorPage({
           viewBackgroundColor: appState.viewBackgroundColor,
           gridSize: appState.gridSize,
         },
-        files,
+        files: {},
+        storageAssets: {},
       };
 
       const result = await fetchJson<{ whiteboard?: WhiteboardData }>(
@@ -458,6 +473,24 @@ export default function WhiteboardEditorPage({
       );
 
       if (result.ok && result.data.whiteboard) {
+        const newId = result.data.whiteboard.id;
+        const storedFiles = await uploadWhiteboardFiles(newId, files);
+        if (!storedFiles.ok) {
+          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
+          setError(storedFiles.error);
+          return;
+        }
+        const savedData = { ...data, files: storedFiles.files, storageAssets: storedFiles.storageAssets };
+        const savedCopy = await fetchJson(API.me.whiteboard(newId), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: savedData }),
+        });
+        if (!savedCopy.ok) {
+          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
+          setError(savedCopy.error);
+          return;
+        }
         router.push(`/whiteboard/${result.data.whiteboard.id}`);
       }
     } catch {
@@ -476,6 +509,15 @@ export default function WhiteboardEditorPage({
     }
     setForking(true);
     try {
+      const files = excalidrawAPIRef.current?.getFiles() as
+        | Record<string, WhiteboardClientFile>
+        | undefined;
+      const sourceData = whiteboard.data as Record<string, unknown>;
+      const forkData = {
+        ...sourceData,
+        files: {},
+        storageAssets: {},
+      };
       const result = await fetchJson<{ whiteboard?: WhiteboardData }>(
         API.me.whiteboards,
         {
@@ -483,12 +525,30 @@ export default function WhiteboardEditorPage({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: `${whiteboard.name} (forked)`,
-            data: whiteboard.data,
+            data: forkData,
             thumbnail: whiteboard.thumbnail,
           }),
         },
       );
       if (result.ok && result.data.whiteboard) {
+        const newId = result.data.whiteboard.id;
+        const storedFiles = await uploadWhiteboardFiles(newId, files ?? {});
+        if (!storedFiles.ok) {
+          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
+          setError(storedFiles.error);
+          return;
+        }
+        const savedData = { ...forkData, files: storedFiles.files, storageAssets: storedFiles.storageAssets };
+        const savedFork = await fetchJson(API.me.whiteboard(newId), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: savedData }),
+        });
+        if (!savedFork.ok) {
+          await fetchJson(API.me.whiteboard(newId), { method: "DELETE" });
+          setError(savedFork.error);
+          return;
+        }
         setForkedId(result.data.whiteboard.id);
       }
     } finally {

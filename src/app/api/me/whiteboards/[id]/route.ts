@@ -4,6 +4,10 @@ import { getServiceClient } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { requireSameOrigin } from "@/lib/security/csrf";
 import { resolveFolderId } from "@/lib/whiteboard-folders";
+import {
+  getWhiteboardAssetMap,
+  hydrateWhiteboardAssets,
+} from "@/lib/whiteboard-storage";
 
 const SELECT_COLUMNS =
   "id, name, data, thumbnail, public, user_id, folder_id, created_at, updated_at";
@@ -38,7 +42,12 @@ export async function GET(
     .eq("id", data.user_id)
     .maybeSingle();
 
-  return NextResponse.json({ whiteboard: { ...data, author: user ?? null } });
+  try {
+    const hydrated = await hydrateWhiteboardAssets(client, data.data);
+    return NextResponse.json({ whiteboard: { ...data, data: hydrated, author: user ?? null } });
+  } catch {
+    return NextResponse.json({ error: "Could not load whiteboard assets." }, { status: 500 });
+  }
 }
 
 export async function PUT(
@@ -62,6 +71,8 @@ export async function PUT(
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
+  const client = getServiceClient();
+
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (typeof body.name === "string") {
     const name = body.name.trim();
@@ -71,6 +82,42 @@ export async function PUT(
     updates.name = name;
   }
   if (body.data !== undefined) {
+    if (!body.data || typeof body.data !== "object" || Array.isArray(body.data)) {
+      return NextResponse.json({ error: "Invalid whiteboard data." }, { status: 400 });
+    }
+    const assets = getWhiteboardAssetMap(body.data);
+    const assetPaths = Object.values(assets);
+    const externalPaths = assetPaths.map((path) => {
+      const [assetOwnerId, sourceBoardId, fileName, ...rest] = path.split("/");
+      if (!assetOwnerId || !sourceBoardId || !fileName || rest.length > 0 || path.includes("..")) {
+        return { path, validShape: false, assetOwnerId: "", sourceBoardId: "" };
+      }
+      return { path, validShape: true, assetOwnerId, sourceBoardId };
+    });
+    const invalidShape = externalPaths.some((asset) => !asset.validShape);
+    if (invalidShape) {
+      return NextResponse.json({ error: "Invalid whiteboard asset path." }, { status: 400 });
+    }
+    const externalBoardIds = [...new Set(
+      externalPaths
+        .filter((asset) => asset.assetOwnerId !== userId)
+        .map((asset) => asset.sourceBoardId),
+    )];
+    let publicBoardOwners = new Map<string, string>();
+    if (externalBoardIds.length > 0) {
+      const { data: sourceBoards } = await client
+        .from("whiteboards")
+        .select("id, user_id")
+        .in("id", externalBoardIds)
+        .eq("public", true);
+      publicBoardOwners = new Map((sourceBoards ?? []).map((board) => [board.id, board.user_id]));
+    }
+    const allowedPaths = externalPaths.map((asset) =>
+      asset.assetOwnerId === userId || publicBoardOwners.get(asset.sourceBoardId) === asset.assetOwnerId,
+    );
+    if (allowedPaths.some((allowed) => !allowed)) {
+      return NextResponse.json({ error: "Invalid whiteboard asset path." }, { status: 400 });
+    }
     updates.data = body.data;
   }
   if (typeof body.public === "boolean") {
@@ -90,7 +137,7 @@ export async function PUT(
     updates.folder_id = resolved.folderId;
   }
 
-  const { data, error } = await getServiceClient()
+  const { data, error } = await client
     .from("whiteboards")
     .update(updates)
     .eq("id", id)
@@ -101,6 +148,7 @@ export async function PUT(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
   return NextResponse.json({ whiteboard: data });
 }
 
